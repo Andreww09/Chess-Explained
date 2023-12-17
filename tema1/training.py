@@ -2,6 +2,7 @@ from chatterbot import ChatBot
 from chatterbot.trainers import ListTrainer
 
 
+
 def train(file):
     trainer = ListTrainer(chatbot)
     with open(file, "r") as file:
