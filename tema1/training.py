@@ -1,17 +1,15 @@
+import json
 from chatterbot import ChatBot
 from chatterbot.trainers import ListTrainer
 
 
 def train(file):
     trainer = ListTrainer(chatbot)
-    with open(file, "r") as file:
-        for line in file.readlines():
-            statements = line.strip().split('|')
-            questions = [question.lower() for question in statements[:-1]]
-            answer = statements[-1]
+    with open(file) as file:
+        data = json.load(file)
 
-            for question in questions:
-                trainer.train([question, answer])
+    for question, answer in data.items():
+        trainer.train([question, answer])
 
 
 chatbot = ChatBot("ChessExplained",
@@ -26,4 +24,4 @@ chatbot = ChatBot("ChessExplained",
                       }
                   ]
                   )
-train("chat.txt")
+train('training_dataset.json')
