@@ -5,11 +5,17 @@ from chatterbot.trainers import ListTrainer
 
 def train(file):
     trainer = ListTrainer(chatbot)
-    with open(file) as file:
-        data = json.load(file)
+    try:
+        with open(file) as file:
+            data = json.load(file)
 
-    for question, answer in data.items():
-        trainer.train([question, answer])
+        for question, answer in data.items():
+            trainer.train([question.lower(), answer])
+
+    except FileNotFoundError:
+        print("data.json file not found.")
+    except json.JSONDecodeError:
+        print("data.json is not a valid JSON file.")
 
 
 chatbot = ChatBot("ChessExplained",

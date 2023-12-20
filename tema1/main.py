@@ -1,5 +1,6 @@
 from chatterbot import ChatBot
 
+
 chatbot = ChatBot("ChessExplained",
                   preprocessors=['chatterbot.preprocessors.convert_to_ascii',
                                  'chatterbot.preprocessors.unescape_html',
@@ -15,8 +16,12 @@ chatbot = ChatBot("ChessExplained",
 
 exit_conditions = (":q", "quit", "exit")
 while True:
-    query = input("> ")
-    if query in exit_conditions:
+    try:
+        query = input("You: ")
+        if query in exit_conditions:
+            break
+        response = chatbot.get_response(query.lower())
+        print(f"Bot: {response}")
+    except (KeyboardInterrupt, EOFError, SystemExit):
+        print("\nExiting chat...")
         break
-    else:
-        print(f"{chatbot.get_response(query)}")
