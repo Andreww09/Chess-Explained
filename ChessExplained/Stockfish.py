@@ -3,7 +3,7 @@ import chess.engine
 
 
 def get_best_move(board):
-    with chess.engine.SimpleEngine.popen_uci("stockfish/stockfish-windows-x86-64-avx2.exe") as engine:
+    with chess.engine.SimpleEngine.popen_uci("stockfish/stockfish-windows-x86-64-modern.exe") as engine:
         result = engine.play(board, chess.engine.Limit(time=2.0))
         return result.move
 
@@ -20,19 +20,23 @@ board = chess.Board()
 #  0  1  2  3  4  5  6  7
 
 # Make some example moves
-moves = ["e2e4", "c7c5", "a2a4", "d7d6", "b2b3", "c8g4", "f2f3", "g4h5", "b1c3", "b8a6", "h2h3", "d8d7", "f1b5"]
-for move in moves:
-    board.push_uci(move)
+moves_san = ["e4", "c5", "a4", "d6", "b3", "Bg4", "f3", "Bh5", "Nc3", "Na6", "h3", "Qd7", "Bb5"]
+for move in moves_san:
+    board.push_san(move)
 
 best_move = get_best_move(board)
 print(board)
 
 for capture in board.generate_legal_captures():
     print(capture)
+
 # False - black, True - white
+print("Legal captures:")
+for capture in board.generate_legal_captures():
+    print(board.san(capture))
+
 print(board.is_attacked_by(False, 51))
 print(board.is_pinned(False, 51))
 print(board.color_at(51))
-
 print(board.attackers(True, 51))
-print("Best move according to Stockfish: {}".format(best_move))
+print("Best move according to Stockfish: {}".format(board.san(best_move)))
