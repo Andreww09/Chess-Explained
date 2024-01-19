@@ -1,7 +1,7 @@
 from chatterbot import ChatBot
 
 
-chatbot = ChatBot("ChessExplained",
+chatbot = ChatBot("lib",
                   preprocessors=['chatterbot.preprocessors.convert_to_ascii',
                                  'chatterbot.preprocessors.unescape_html',
                                  'chatterbot.preprocessors.clean_whitespace'],
