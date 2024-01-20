@@ -185,17 +185,8 @@ class Stockfish:
         return "White" if self.board.turn == chess.WHITE else "Black"
 
     def get_index_from_san(self, move_san):
-        size = len(move_san)
-        if move_san[size-1]=='+':
-            size-=1
-        column = move_san[size - 2]
-        row = move_san[size - 1]
-        index = (int(row) - 1) * 8 + (ord(column) - ord('a'))
-
-        return index
-
-    def get_piece_at_san(self, move_san):
-        return self.board.piece_at(self.get_index_from_san(move_san))
+        move = move_san.replace("+", "")
+        return chess.parse_square(move[-2:])
 
     def get_piece_at_index(self, index):
         return self.board.piece_at(index)
@@ -204,5 +195,4 @@ class Stockfish:
 
         poz = self.get_index_from_san(move_san)
         attackers = self.board.attackers(color, poz)
-
         return attackers

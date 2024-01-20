@@ -91,12 +91,12 @@ class StockfishExplainer:
 
     def _is_move_a_sacrifice(self, move_san):
         # type of the piece that was captured
-        old_piece = self.stockfish.get_piece_at_san(move_san)
+        index = self.stockfish.get_index_from_san(move_san)
+        old_piece = self.stockfish.get_piece_at_index(index)
 
         self.stockfish.make_move(move_san)
-        print(move_san)
         # type of the piece that was moved
-        new_piece = str(self.stockfish.get_piece_at_san(move_san)).upper()
+        new_piece = str(self.stockfish.get_piece_at_index(index)).upper()
         # all the squares (as integers) that attack the moved piece
         attackers = self.stockfish.get_attackers_at(self.stockfish.board.turn, move_san)
         # all the squares that protect the moved piece
