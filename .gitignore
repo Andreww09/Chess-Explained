@@ -1,6 +1,6 @@
 .idea
 tema1/db.sqlite3
 venv
-stockfish/
+stockfish
 lib/Stockfish/__pycache__/
 lib/__pycache__/

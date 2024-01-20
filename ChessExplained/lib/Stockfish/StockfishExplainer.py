@@ -32,15 +32,17 @@ class StockfishExplainer:
         best_move = self.stockfish.get_best_move()
         explanation = f"The best move is {best_move}. "
 
-        is_pin = self._is_move_a_pin(best_move)
         is_fork = self._is_move_a_fork(best_move)
-        is_battery = self._is_move_a_battery(best_move)
-        is_sacrifice = self._is_move_a_sacrifice(best_move)
+        #is_battery = self._is_move_a_battery(best_move)
+        #is_sacrifice = self._is_move_a_sacrifice(best_move)
+        #is_checkmate = self._is_move_a_checkmate(best_move)
+        #is_stalemate = self._is_move_a_stalemate(best_move)
 
-        print("is_pin: ", is_pin)
         print("is_fork: ", is_fork)
         print("is_sacrifice:", is_sacrifice)
         print("is_battery: ", is_battery)
+        print("is_checkmate: ", is_checkmate)
+        print("is_stalemate: ", is_stalemate)
 
         if is_pin:
             explanation += "This move pins an opponent's piece. "
@@ -175,3 +177,27 @@ class StockfishExplainer:
             return True
 
         return False
+
+    def _is_move_a_checkmate(self, move_san):
+        """
+        Determine if the move results in a checkmate.
+
+        :param move_san: Move in standard algebraic notation
+        :return: True if the move results in a checkmate, False otherwise
+        """
+        self.stockfish.make_move(move_san)
+        is_checkmate = self.stockfish.board.is_checkmate()
+        self.stockfish.undo_move()
+        return is_checkmate
+
+    def _is_move_a_stalemate(self, move_san):
+        """
+        Determine if the move results in a stalemate.
+
+        :param move_san: Move in standard algebraic notation
+        :return: True if the move results in a stalemate, False otherwise
+        """
+        self.stockfish.make_move(move_san)
+        is_stalemate = self.stockfish.board.is_stalemate()
+        self.stockfish.undo_move()
+        return is_stalemate

@@ -11,7 +11,7 @@ class Stockfish:
     def __init__(self, engine_path):
         """
         Constructor for Stockfish class
-        Initializes board and engine path.
+        Initializes board and engine path
 
         :param engine_path: path to Stockfish engine on personal computer
         """
@@ -19,11 +19,27 @@ class Stockfish:
         self.engine_path = engine_path
         self.board = chess.Board()
 
-    def make_move(self, move):
+    def setup(self, fen):
+        """
+        Set the board to the given FEN
+
+        :param fen: FEN to set the board to
+        :return: True if FEN is valid, False otherwise
+        """
+
+        try:
+            # set the board to the given FEN
+            self.board.set_fen(fen)
+            return True
+        except ValueError:
+            print(f"Invalid FEN: {fen}")
+            return False
+
+    def move(self, move):
         """
         Make a move on the current board
 
-        :param move: move to be made
+        :param move: move in SAN notation to be made
         :return: True if move is valid, False otherwise
         """
 
@@ -35,7 +51,359 @@ class Stockfish:
             print(f"Invalid move: {move}")
             return False
 
-    def get_best_move(self, time_limit=2.0):
+    def undo(self):
+        """
+        Undo the last move made on the board
+
+        :return: True if move was undone, False otherwise
+        """
+
+        # if there are moves on the stack, pop the last move
+        if len(self.board.move_stack) > 0:
+            self.board.pop()
+            return True
+        return False
+
+    def turn(self):
+        """
+        Get the turn of the board
+
+        :return: turn of the board ('White' or 'Black')
+        """
+
+        # return the string representation of the turn
+        return "White" if self.board.turn == chess.WHITE else "Black"
+
+    def switch_turn(self):
+        """
+        Change the turn of the board
+
+        :return: None
+        """
+
+        # change the turn of the board
+        self.board.turn = not self.board.turn
+
+    def display(self):
+        """
+        Display the current board
+
+        :return: None
+        """
+
+        # print the board
+        print(self.board)
+
+    def attacked_pieces(self):
+        """
+        List squares of pieces that are under attack by the opponent of the current player
+
+        :return: List of squares as strings
+        """
+
+        attacked_pieces = []
+
+        # get the color of the opponent
+        opponent_color = not self.board.turn
+
+        # loop through all the squares on the board
+        for square in chess.SQUARES:
+
+            # get the piece at the square
+            piece_at = self.board.piece_at(square)
+
+            # get the color of the piece at the square
+            color_at = self.board.color_at(square)
+
+            # check if the square has a piece and it is not the opponent's piece
+            if not piece_at or color_at == opponent_color:
+                continue
+
+            # check if the square is attacked by the opponent
+            if self.board.is_attacked_by(opponent_color, square):
+                attacked_pieces.append(chess.square_name(square))
+
+        # return the list of attacked pieces by the opponent
+        return attacked_pieces
+
+    def moves(self):
+        """
+        List all legal moves for the current board
+
+        :return: list of legal moves for the current board in SAN notation
+        """
+
+        return [self.board.san(move) for move in self.board.legal_moves]
+
+    def squares(self):
+        """
+        Tuple of (start_square, end_square) for all legal moves for the current board
+
+        :return: (start_square, end_square) for all legal moves for the current board
+        """
+        return [(chess.square_name(move.from_square), chess.square_name(move.to_square)) for move in
+                self.board.legal_moves]
+
+    def moves_by(self, position):
+        """
+        List all legal moves for the piece on the specified square index
+
+        :param position: position in SAN notation
+        :return: list of legal moves for the piece on the specified position
+        """
+
+        # convert the position to square index
+        position_index = self.index_from_san(position)
+
+        # get the piece at the specified index
+        piece = self.board.piece_at(position_index)
+
+        if piece is None:
+            return []
+
+        # get the color of the piece
+        piece_color = self.board.color_at(position_index)
+
+        # get all the legal moves for the piece
+        legal_moves = self.board.generate_legal_moves(from_mask=chess.BB_SQUARES[position_index])
+
+        # initialize the list of legal moves
+        legal_moves_san = []
+
+        # iterate through all the legal moves
+        for move in legal_moves:
+            # if the move is valid, add it to the list of legal moves
+            if self.board.color_at(move.to_square) != piece_color:
+                legal_moves_san.append(self.board.san(move))
+
+        # return the list of legal moves
+        return legal_moves_san
+
+    def squares_by(self, position):
+        """
+        List all legal moves for the piece on the specified square index
+
+        :param position: position in SAN notation
+        :return: list of legal squares for the piece on the specified position
+        """
+
+        # convert the position to square index
+        position_index = self.index_from_san(position)
+
+        # get the piece at the specified index
+        piece = self.board.piece_at(position_index)
+
+        if piece is None:
+            return []
+
+        # get the color of the piece
+        piece_color = self.board.color_at(position_index)
+
+        # get all the legal moves for the piece
+        legal_moves = self.board.generate_legal_moves(from_mask=chess.BB_SQUARES[position_index])
+
+        # initialize the list of legal moves
+        legal_squares = []
+
+        # iterate through all the legal moves
+        for move in legal_moves:
+            # if the move is valid, add it to the list of legal moves
+            if self.board.color_at(move.to_square) != piece_color:
+                legal_squares.append((chess.square_name(move.from_square), chess.square_name(move.to_square)))
+
+        # return the list of legal moves
+        return legal_squares
+
+    def captures_san(self):
+        """
+        List all captures for the current board
+
+        :return: list of captures for the current board in SAN notation
+        """
+
+        return [self.board.san(move) for move in self.board.generate_legal_captures()]
+
+    def captures(self):
+        """
+        List all captures for the current board
+
+        :return: list of captures for the current board in SAN notation
+        """
+
+        return [(chess.square_name(move.from_square), chess.square_name(move.to_square)) for move in
+                self.board.generate_legal_captures()]
+
+    def captures_by(self, position):
+        """
+        List all pieces attacked by the piece on the specified position
+
+        :param position: position in SAN notation
+        :return: List of square names
+        """
+
+        # convert the position to square index
+        position_index = self.index_from_san(position)
+
+        # get the piece at the specified index
+        piece = self.board.piece_at(position_index)
+
+        # get the color of the piece
+        piece_color = self.board.color_at(position_index)
+
+        # get all the squares attacked by the piece
+        attacked_squares = self.board.attacks(position_index)
+
+        # initialize the list of captures
+        captures = []
+
+        # iterate through all the attacked squares
+        for square in attacked_squares:
+            # if the square is occupied by an opponent's piece, add the move to the list of captures
+            if self.board.piece_at(square) and self.board.color_at(square) != piece_color:
+                captures.append(chess.square_name(square))
+
+        # return the list of captures
+        return captures
+
+    def captures_by_san(self, position):
+        """
+        List all pieces attacked by the piece on the specified position
+
+        :param position: position in SAN notation
+        :return: List of SAN moves
+        """
+
+        # convert the position to square index
+        position_index = self.index_from_san(position)
+
+        # get the piece at the specified index
+        piece = self.board.piece_at(position_index)
+
+        # get the color of the piece
+        piece_color = self.board.color_at(position_index)
+
+        # get all the squares attacked by the piece
+        attacked_squares = self.board.attacks(position_index)
+
+        # initialize the list of captures
+        captures = []
+
+        # iterate through all the attacked squares
+        for square in attacked_squares:
+            # if the square is occupied by an opponent's piece, add the move to the list of captures
+            if self.board.piece_at(square) and self.board.color_at(square) != piece_color:
+                captures.append(self.board.san(chess.Move(position_index, square)))
+
+        # return the list of captures
+        return captures
+
+    def capture_pieces(self):
+        """
+        List all pieces that could be captured for the current board
+
+        :return: tuple of (piece, start_square, end_square) for all captures for the current board
+        """
+
+        return [
+            (
+                str(self.board.piece_at(move.to_square)).upper(),
+                chess.square_name(move.from_square),
+                chess.square_name(move.to_square)
+            )
+            for move in self.board.generate_legal_captures()
+        ]
+
+    def capture_pieces_san(self):
+        """
+        List all pieces that could be captured for the current board
+
+        :return: tuple of (piece, start_square, end_square) for all captures for the current board
+        """
+
+        return [
+            (
+                str(self.board.piece_at(move.to_square)).upper(),
+                self.board.san(move)
+            )
+            for move in self.board.generate_legal_captures()
+        ]
+
+    def capture_pieces_by(self, position):
+        """
+        List all pieces that could be captured by the piece on the specified position
+
+        :param position: position in SAN notation
+        :return: List of tuples (piece, start_square, end_square)
+        """
+
+        # convert the position to square index
+        position_index = self.index_from_san(position)
+
+        # get the color of the piece
+        piece_color = self.board.color_at(position_index)
+
+        # get all the squares attacked by the piece
+        attacked_squares = self.board.attacks(position_index)
+
+        # initialize the list of captures
+        captures = []
+
+        # iterate through all the attacked squares
+        for square in attacked_squares:
+
+            piece_at = self.board.piece_at(square)
+            if piece_at is None:
+                continue
+
+            # if the square is occupied by an opponent's piece, add the move to the list of captures
+            if self.board.color_at(square) != piece_color:
+                captures.append((
+                    str(piece_at).upper(),
+                    chess.square_name(position_index),
+                    chess.square_name(square)
+                ))
+
+        # return the list of captures
+        return captures
+
+    def capture_pieces_by_san(self, position):
+        """
+        List all pieces that could be captured by the piece on the specified position
+
+        :param position: position in SAN notation
+        :return: List of tuples (piece, start_square, end_square)
+        """
+
+        # convert the position to square index
+        position_index = self.index_from_san(position)
+
+        # get the color of the piece
+        piece_color = self.board.color_at(position_index)
+
+        # get all the squares attacked by the piece
+        attacked_squares = self.board.attacks(position_index)
+
+        # initialize the list of captures
+        captures = []
+
+        # iterate through all the attacked squares
+        for square in attacked_squares:
+
+            piece_at = self.board.piece_at(square)
+            if piece_at is None:
+                continue
+
+            # if the square is occupied by an opponent's piece, add the move to the list of captures
+            if self.board.color_at(square) != piece_color:
+                captures.append((
+                    str(piece_at).upper(),
+                    self.board.san(chess.Move(position_index, square))
+                ))
+
+        # return the list of captures
+        return captures
+
+    def best_move(self, time_limit=2.0):
         """
         Get the best move for the current board
 
@@ -50,7 +418,7 @@ class Stockfish:
             # convert the move to SAN notation and return it
             return self.board.san(result.move)
 
-    def get_best_move_sequence(self, num_moves, time_limit=2.0):
+    def best_move_sequence(self, num_moves, time_limit=2.0):
         """
         Get the best sequence of moves for the current board
 
@@ -82,43 +450,7 @@ class Stockfish:
         # return the sequence of moves
         return sequence
 
-    def setup_game(self, fen):
-        """
-        Set the board to the given FEN
-
-        :param fen: FEN to set the board to
-        :return: True if FEN is valid, False otherwise
-        """
-
-        try:
-            # set the board to the given FEN
-            self.board.set_fen(fen)
-            return True
-        except ValueError:
-            print(f"Invalid FEN: {fen}")
-            return False
-
-    def display_board(self):
-        """
-        Display the current board
-
-        :return: None
-        """
-        print(self.board)
-
-    def undo_move(self):
-        """
-        Undo the last move made on the board
-
-        :return: True if move was undone, False otherwise
-        """
-
-        if len(self.board.move_stack) > 0:
-            self.board.pop()
-            return True
-        return False
-
-    def evaluate_board(self):
+    def evaluation(self):
         """
         Evaluate the current board
 
@@ -128,100 +460,32 @@ class Stockfish:
             info = engine.analyse(self.board, chess.engine.Limit(time=0.1))
             return info["score"]
 
-    def game_status(self):
+    def piece_at_index(self, index):
         """
-        Check the status of the game
+        Get the piece at the specified index
 
-        :return: status of the game (checkmate, stalemate, draw, game ongoing)
-        """
-
-        if self.board.is_checkmate():
-            return "Checkmate"
-        elif self.board.is_stalemate():
-            return "Stalemate"
-        elif self.board.is_insufficient_material():
-            return "Draw due to insufficient material"
-        return "Game ongoing"
-
-    def change_turn(self):
-        """
-        Change the turn of the board
-
-        :return: None
-        """
-        self.board.turn = not self.board.turn
-
-    def list_legal_moves(self):
-        """
-        List all legal moves for the current board
-
-        :return: list of legal moves for the current board
+        :param index: index of the piece.
+        :return: piece at the specified index
         """
 
-        return [self.board.san(move) for move in self.board.legal_moves]
+        return str(self.board.piece_at(index)).upper()
 
-    def list_attacked_pieces(self):
+    def piece_at_san(self, position):
         """
-        List squares of pieces that are under attack by the opponent of the current player
+        Get the piece at the specified position
 
-        :return: List of squares as strings
+        :param position: position in SAN notation
+        :return: piece at the specified position
         """
 
-        attacked_pieces = []
-        opponent_color = not self.board.turn
-        for square in chess.SQUARES:
-            if self.board.piece_at(square) and self.board.color_at(square) == self.board.turn:
-                if self.board.is_attacked_by(opponent_color, square):
-                    attacked_pieces.append(chess.square_name(square))
-        return attacked_pieces
-
-    def list_all_captures(self):
-        """
-        List all possible captures for the current player.
-
-        :return: List of capture moves in SAN
-        """
-        return [self.board.san(move) for move in self.board.generate_legal_captures() if
-                self.board.color_at(move.from_square) == self.board.turn]
-
-    def list_pieces_attacked_by(self, square_index):
-        """
-        List all pieces attacked by the piece on the specified square index.
-
-        :param square_index: The index of the square (0 to 63)
-        :return: List of squares containing pieces attacked by the specified piece
-        """
-        attacked_squares = []
-        piece = self.board.piece_at(square_index)
-
-        if piece:
-            legal_moves = list(self.board.generate_legal_moves(from_mask=chess.BB_SQUARES[square_index]))
-            for move in legal_moves:
-                target_piece = self.board.piece_at(move.to_square)
-                if target_piece and target_piece.color != piece.color:
-                    attacked_squares.append(chess.square_name(move.to_square))
-
-        return attacked_squares
-
-    def current_player_color(self):
-        """
-        Get the color of the current player
-
-        :return: 'White' or 'Black'
-        """
-        return "White" if self.board.turn == chess.WHITE else "Black"
-
-    def get_index_from_san(self, move_san):
-        move = move_san.replace("+", "")
-        return chess.parse_square(move[-2:])
-
-    def get_piece_at_index(self, index):
-        return self.board.piece_at(index)
-
-    def get_piece_at_position(self, position):
         return self.board.piece_at(chess.parse_square(position))
 
-    def get_attackers_at(self, color, poz):
+    def index_from_san(self, position):
+        """
+        Get the index from the specified position
 
-        attackers = self.board.attackers(color, poz)
-        return attackers
+        :param position: position in SAN notation
+        :return: index from the specified position
+        """
+
+        return chess.parse_square(position)
