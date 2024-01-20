@@ -45,6 +45,38 @@ class StockfishExplainer:
         is_pawn_promotion = self._is_pawn_promotion(best_move)
         is_skewer = self._is_skewer(best_move)
         is_forced_checkmate = self._is_forced_checkmate(best_move)
+        is_polish_opening = self._is_polish_opening(best_move)
+        is_nimzowitsch_larsen_attack = self._is_nimzowitsch_larsen_attack(best_move)
+        is_kings_indian = self._is_kings_indian(best_move)
+        is_birds_opening = self._is_birds_opening(best_move)
+        is_english_opening = self._is_english_opening(best_move)
+        is_alekhine_defense = self._is_alekhine_defense(best_move)
+        is_benko_gambit = self._is_benko_gambit(best_move)
+        is_benoni_defense = self._is_benoni_defense(best_move)
+        is_bogo_indian_defense = self._is_bogo_indian_defense(best_move)
+        is_caro_kann_defense = self._is_caro_kann_defense(best_move)
+        is_catalan_opening = self._is_catalan_opening(best_move)
+        is_vienna_game = self._is_vienna_game(best_move)
+        is_trompowsky_attack = self._is_trompowsky_attack(best_move)
+        is_slav_defense = self._is_slav_defense(best_move)
+        is_sicilian_defense = self._is_sicilian_defense(best_move)
+        is_scotch_game = self._is_scotch_game(best_move)
+        is_scandinavian_defense = self._is_scandinavian_defense(best_move)
+        is_ruy_lopez_opening = self._is_ruy_lopez_opening(best_move)
+        is_reti_opening = self._is_reti_opening(best_move)
+        is_queens_indian_defense = self._is_queens_indian_defense(best_move)
+        is_pirc_defense = self._is_pirc_defense(best_move)
+        is_queens_gambit = self._is_queens_gambit(best_move)
+        is_nimzo_indian_defense = self._is_nimzo_indian_defense(best_move)
+        is_london_system = self._is_london_system(best_move)
+        is_kings_gambit = self._is_kings_gambit(best_move)
+        is_kings_fianchetto_opening = self._is_kings_fianchetto_opening(best_move)
+        is_king_indian_defense = self._is_king_indian_defense(best_move)
+        is_dutch_defense = self._is_dutch_defense(best_move)
+        is_french_defense = self._is_french_defense(best_move)
+        is_italian_game = self._is_italian_game(best_move)
+        is_grunfeld_defense = self._is_grunfeld_defense(best_move)
+        is_grob_opening = self._is_grob_opening(best_move)
 
         print("is_fork: ", is_fork)
         print("is_checkmate: ", is_checkmate)
@@ -59,7 +91,38 @@ class StockfishExplainer:
         print("is_pawn_promotion: ", is_pawn_promotion)
         print("is_skewer: ", is_skewer)
         print("is_forced_checkmate: ", is_forced_checkmate)
-
+        print("is_polish_opening: ", is_polish_opening)
+        print("is_nimzowitsch_larsen_attack: ", is_nimzowitsch_larsen_attack)
+        print("is_kings_indian: ", is_kings_indian)
+        print("is_birds_opening: ", is_birds_opening)
+        print("is_english_opening: ", is_english_opening)
+        print("is_alekhine_defense: ", is_alekhine_defense)
+        print("is_benko_gambit: ", is_benko_gambit)
+        print("is_benoni_defense: ", is_benoni_defense)
+        print("is_bogo_indian_defense: ", is_bogo_indian_defense)
+        print("is_caro_kann_defense: ", is_caro_kann_defense)
+        print("is_catalan_opening: ", is_catalan_opening)
+        print("is_vienna_game: ", is_vienna_game)
+        print("is_trompowsky_attack: ", is_trompowsky_attack)
+        print("is_slav_defense: ", is_slav_defense)
+        print("is_sicilian_defense: ", is_sicilian_defense)
+        print("is_scotch_game: ", is_scotch_game)
+        print("is_scandinavian_defense: ", is_scandinavian_defense)
+        print("is_ruy_lopez_opening: ", is_ruy_lopez_opening)
+        print("is_reti_opening: ", is_reti_opening)
+        print("is_queens_indian_defense: ", is_queens_indian_defense)
+        print("is_pirc_defense: ", is_pirc_defense)
+        print("is_queens_gambit: ", is_queens_gambit)
+        print("is_nimzo_indian_defense: ", is_nimzo_indian_defense)
+        print("is_london_system: ", is_london_system)
+        print("is_kings_gambit: ", is_kings_gambit)
+        print("is_kings_fianchetto_opening: ", is_kings_fianchetto_opening)
+        print("is_king_indian_defense: ", is_king_indian_defense)
+        print("is_dutch_defense: ", is_dutch_defense)
+        print("is_french_defense: ", is_french_defense)
+        print("is_italian_game: ", is_italian_game)
+        print("is_grunfeld_defense: ", is_grunfeld_defense)
+        print("is_grob_opening: ", is_grob_opening)
 
         print("---------------------------------------------------")
         advantage_color, probability = self._calculate_winning_prob()
@@ -332,3 +395,259 @@ class StockfishExplainer:
         probability = self.stockfish.winning_probability(score_cp)
 
         return color, probability
+
+    def _is_sicilian_defense(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_french_defense(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/3P4/8/PPP2PPP/R1BQKBNR b KQkq - 0 2"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_ruy_lopez_opening(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("r1bqkbnr/pppp1ppp/2n5/8/3Pp3/5N2/PPP2PPP/R1BQKB1R w KQkq - 0 6"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_caro_kann_defense(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pp2pppp/2p5/3p4/3P4/8/PPP2PPP/R1BQKBNR w KQkq - 0 4"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_italian_game(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/R1BQKB1R w KQkq - 0 5"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_scandinavian_defense(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("r1bqkbnr/ppp1pppp/8/3p4/3P4/8/PPP2PPP/R1BQKBNR w KQkq - 0 4"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_pirc_defense(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkb1r/ppp1pppp/8/3p4/3Pn3/8/PPP2PPP/R1BQKBNR w KQkq - 0 4"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_alekhine_defense(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_kings_gambit(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPP2PPP/R1BQKBNR b KQkq - 0 2"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_scotch_game(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPP2PPP/R1BQKB1R b KQkq - 0 3"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_vienna_game(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/R1BQKBNR b KQkq - 0 2"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_queens_gambit(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/ppp2ppp/8/3p4/3Pp3/8/PPP2PPP/R1BQKBNR w KQkq - 0 4"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_king_indian_defense(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pp1ppppp/8/2p5/2P5/8/PP1P1PPP/RNBQKBNR w KQkq - 0 4"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_slav_defense(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pp2pppp/8/2pp4/3P4/8/PPP2PPP/R1BQKBNR w KQkq - 0 4"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_nimzo_indian_defense(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/ppp2ppp/4p3/3p4/3P4/5N2/PPP2PPP/R1BQKB1R w KQkq - 0 5"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_queens_indian_defense(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/ppp2ppp/4p3/3p4/3P4/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 4"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_catalan_opening(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/ppp2ppp/3p4/4p3/3P4/2N5/PPP2PPP/R1BQKBNR b KQkq - 0 4"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_bogo_indian_defense(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/8/PPPP1PPP/R1BQK1NR w KQkq - 0 5"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_grunfeld_defense(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pp3ppp/8/3pp3/3P4/2N5/PPP2PPP/R1BQKBNR w KQkq - 0 4"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_dutch_defense(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/3P4/8/PPP2PPP/R1BQKBNR w KQkq - 0 3"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_trompowsky_attack(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 2"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_benko_gambit(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/1p3ppp/p3p3/3pP3/3P4/8/PPP2PPP/R1BQKBNR w KQkq - 0 5"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_grob_opening(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/6P1/8/PPPPPP1P/RNBQKBNR b KQkq - 0 1"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_london_system(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/3P4/5N2/PPP1PPPP/R1BQKBNR b KQkq - 0 2"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_benoni_defense(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppp1ppp/8/4p3/2P5/8/PP1PPPPP/RNBQKBNR w KQkq - 0 3"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_reti_opening(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 0 1"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_english_opening(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq - 0 2"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_birds_opening(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_kings_indian(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 2"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_kings_fianchetto_opening(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_nimzowitsch_larsen_attack(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
+
+    def _is_polish_opening(self, move_san):
+        self.stockfish.move(move_san)
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/8/1P6/P1PPPPPP/RNBQKBNR b KQkq - 0 1"):
+            self.stockfish.undo()
+            return True
+        self.stockfish.undo()
+        return False
