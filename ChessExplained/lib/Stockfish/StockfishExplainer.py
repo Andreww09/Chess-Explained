@@ -1,6 +1,5 @@
-import chess
-import chess.engine
 from lib.utils import BoardUtils
+import chess
 
 
 class StockfishExplainer:
@@ -77,8 +76,13 @@ class StockfishExplainer:
         # change the turn
         self.stockfish.change_turn()
 
+        # get piece moved
+        index = self.stockfish.get_index_from_san(move_san)
+
         # get all captures
-        captures = self.stockfish.list_all_captures()
+        captures = self.stockfish.list_pieces_attacked_by(index)
+
+        print("Captures: ", captures)
 
         # change the turn back
         self.stockfish.change_turn()
@@ -89,9 +93,16 @@ class StockfishExplainer:
         # check captures for 2 valuable pieces
         num_valuable_pieces = 0
         for capture in captures:
-            if capture[0] == "Q" or capture[0] == "R" or capture[0] == "B" or capture[0] == "N" or capture[0] == "K":
+            # get piece type from position
+            piece = self.stockfish.get_piece_at_position(capture)
+
+            piece_string = str(piece).upper()
+
+            # check if piece is valuable
+            if piece_string in ['Q', 'R', 'B', 'N', 'K']:
                 num_valuable_pieces += 1
 
+        print("Num valuable pieces: ", num_valuable_pieces)
         return num_valuable_pieces >= 2
 
     def _is_move_a_battery(self, move_san):

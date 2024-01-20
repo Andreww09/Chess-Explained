@@ -184,6 +184,25 @@ class Stockfish:
         return [self.board.san(move) for move in self.board.generate_legal_captures() if
                 self.board.color_at(move.from_square) == self.board.turn]
 
+    def list_pieces_attacked_by(self, square_index):
+        """
+        List all pieces attacked by the piece on the specified square index.
+
+        :param square_index: The index of the square (0 to 63)
+        :return: List of squares containing pieces attacked by the specified piece
+        """
+        attacked_squares = []
+        piece = self.board.piece_at(square_index)
+
+        if piece:
+            legal_moves = list(self.board.generate_legal_moves(from_mask=chess.BB_SQUARES[square_index]))
+            for move in legal_moves:
+                target_piece = self.board.piece_at(move.to_square)
+                if target_piece and target_piece.color != piece.color:
+                    attacked_squares.append(chess.square_name(move.to_square))
+
+        return attacked_squares
+
     def current_player_color(self):
         """
         Get the color of the current player
@@ -198,6 +217,9 @@ class Stockfish:
 
     def get_piece_at_index(self, index):
         return self.board.piece_at(index)
+
+    def get_piece_at_position(self, position):
+        return self.board.piece_at(chess.parse_square(position))
 
     def get_attackers_at(self, color, poz):
 
