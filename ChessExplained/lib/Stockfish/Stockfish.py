@@ -535,9 +535,9 @@ class Stockfish:
         eval_first_item = eval_first_item[eval_first_item.find('('):]
         eval_first_item = eval_first_item.strip('()')
         if eval_first_item[0] == '+':
-            return True
+            return self.board.turn
         else:
-            return False
+            return not self.board.turn
 
     def piece_at_index(self, index):
         """
