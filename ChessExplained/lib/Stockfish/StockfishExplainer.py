@@ -15,6 +15,14 @@ class StockfishExplainer:
         :param stockfish: Instance of Stockfish class
         """
         self.stockfish = stockfish
+        self.piece_value = {
+            'K': 10,
+            'Q': 9,
+            'R': 5,
+            'B': 3,
+            'N': 3,
+            'P': 1,
+        }
 
     def explain(self):
         """
@@ -28,9 +36,11 @@ class StockfishExplainer:
         is_pin = self._is_move_a_pin(best_move)
         is_fork = self._is_move_a_fork(best_move)
         is_battery = self._is_move_a_battery(best_move)
+        is_sacrifice = self._is_move_a_sacrifice(best_move)
 
         print("is_pin: ", is_pin)
         print("is_fork: ", is_fork)
+        print("is_sacrifice:", is_sacrifice)
         print("is_battery: ", is_battery)
 
         if is_pin:
@@ -118,3 +128,39 @@ class StockfishExplainer:
         self.stockfish.undo_move()
 
         return is_battery
+
+    def _is_move_a_sacrifice(self, move_san):
+        # type of the piece that was captured
+        index = self.stockfish.get_index_from_san(move_san)
+        old_piece = self.stockfish.get_piece_at_index(index)
+
+        self.stockfish.make_move(move_san)
+        # type of the piece that was moved
+        new_piece = str(self.stockfish.get_piece_at_index(index)).upper()
+        # all the squares (as integers) that attack the moved piece
+        attackers = self.stockfish.get_attackers_at(self.stockfish.board.turn, index)
+        # all the squares that protect the moved piece
+        protectors = self.stockfish.get_attackers_at(not self.stockfish.board.turn, index)
+
+        # undo the move
+        self.stockfish.board.pop()
+
+        # the piece was moved to a square that is under attack and there are no protectors
+        if old_piece is None:
+            if len(attackers) > 0 and len(protectors) == 0:
+                return True
+            else:
+                # the piece is protected but is attacked and can be taken by a weaker piece
+                for attacker in attackers:
+                    piece = str(self.stockfish.get_piece_at_index(attacker)).upper()
+                    if self.piece_value[piece] < self.piece_value[new_piece]:
+                        return True
+                return False
+
+        old_piece = str(old_piece).upper()
+
+        # the piece was traded for a lower value piece
+        if self.piece_value[old_piece] < self.piece_value[new_piece]:
+            return True
+
+        return False

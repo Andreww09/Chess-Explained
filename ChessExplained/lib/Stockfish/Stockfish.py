@@ -67,7 +67,6 @@ class Stockfish:
 
         with chess.engine.SimpleEngine.popen_uci(self.engine_path) as engine:
             for _ in range(num_moves):
-
                 # get the best move for the current board
                 result = engine.play(temp_board, chess.engine.Limit(time=time_limit))
 
@@ -192,3 +191,15 @@ class Stockfish:
         :return: 'White' or 'Black'
         """
         return "White" if self.board.turn == chess.WHITE else "Black"
+
+    def get_index_from_san(self, move_san):
+        move = move_san.replace("+", "")
+        return chess.parse_square(move[-2:])
+
+    def get_piece_at_index(self, index):
+        return self.board.piece_at(index)
+
+    def get_attackers_at(self, color, poz):
+
+        attackers = self.board.attackers(color, poz)
+        return attackers
