@@ -55,3 +55,19 @@ class BoardUtils:
     @staticmethod
     def piece_at_index_str(board, index):
         return str(board.piece_at(index)).upper()
+
+    def expand_piece_name(piece):
+        if piece == 'P':
+            return 'Pawn'
+        elif piece == 'N':
+            return 'Knight'
+        elif piece == 'B':
+            return 'Bishop'
+        elif piece == 'R':
+            return 'Rook'
+        elif piece == 'Q':
+            return 'Queen'
+        elif piece == 'K':
+            return 'King'
+        raise Exception("Invalid Piece Type")
+

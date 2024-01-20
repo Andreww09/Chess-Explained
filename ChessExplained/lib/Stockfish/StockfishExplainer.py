@@ -55,8 +55,8 @@ class StockfishExplainer:
         is_battery = self._is_battery(best_move)
         is_sacrifice = self._is_sacrifice(best_move)
         is_discovered_attack = self._is_a_discovered_attack(best_move)
-        is_castling = self._is_a_castling(best_move)["enable"]
-        is_pawn_promotion = self._is_pawn_promotion(best_move)
+        dict['castling'] = self._is_a_castling(best_move)
+        dict['pawn_promotion'] = self._is_pawn_promotion(best_move)
         is_skewer = self._is_skewer(best_move)
         is_forced_checkmate = self._is_forced_checkmate(best_move)
         is_polish_opening = self._is_polish_opening(best_move)
@@ -104,8 +104,8 @@ class StockfishExplainer:
         print("is_battery: ", is_battery)
         print("is_sacrifice: ", is_sacrifice)
         print("is_discovered_attack: ", is_discovered_attack)
-        print("is_castling: ", is_castling)
-        print("is_pawn_promotion: ", is_pawn_promotion)
+        print("is_castling: ", dict['castling']['enable'])
+        print("is_pawn_promotion: ", dict['pawn_promotion']['enable'])
         print("is_skewer: ", is_skewer)
         print("is_forced_checkmate: ", is_forced_checkmate)
         print("is_polish_opening: ", is_polish_opening)
@@ -143,6 +143,10 @@ class StockfishExplainer:
 
         if dict['checkmate']['enable']:
             explanation += f"{dict['checkmate']['piece']} delivers checkmate. "
+        if dict['castling']['enable']:
+            explanation += f"{dict['castling']['side']} castling happens. "
+        if dict['pawn_promotion']['enable']:
+            explanation += f"Pawn promoted to {dict['pawn_promotion']['piece']}. "
 
         print("---------------------------------------------------")
         advantage_color, probability = self._calculate_winning_prob()
@@ -208,20 +212,8 @@ class StockfishExplainer:
             start_end_move = self.stockfish.start_end_from_san(move_san)
             index = self.stockfish.index_from_san(start_end_move[0])
             piece = BoardUtils.piece_at_index_str(self.stockfish.board, index)
-            if piece == 'P':
-                piece = 'Pawn'
-            elif piece == 'N':
-                piece = 'Knight'
-            elif piece == 'B':
-                piece = 'Bishop'
-            elif piece == 'R':
-                piece = 'Rook'
-            elif piece == 'Q':
-                piece = 'Queen'
-            elif piece == 'K':
-                piece = 'King'
+            piece = BoardUtils.expand_piece_name(piece)
             dict['piece'] = piece
-
         dict['enable'] = is_checkmate
         return dict
 
@@ -334,6 +326,8 @@ class StockfishExplainer:
 
         from_square = self.stockfish.board.parse_san(move_san).from_square
         to_square = self.stockfish.board.parse_san(move_san).to_square
+        print(from_square)
+        print(to_square)
 
         squares_before_move = self.stockfish.captures_except_square_allowing_duplicates(from_square)
 
@@ -361,15 +355,26 @@ class StockfishExplainer:
         return dict({"enable": enable, "side": side})
 
     def _is_pawn_promotion(self, move_san):
-        from_square = self.stockfish.board.parse_san(move_san).from_square
-        to_square = self.stockfish.board.parse_san(move_san).to_square
-        if self.stockfish.piece_at_index(from_square).piece_type == 1:
+        enable = False
+        piece_type = ""
+        start_end_move = self.stockfish.start_end_from_san(move_san)
+        start_index = self.stockfish.index_from_san(start_end_move[0])
+        end_index = self.stockfish.index_from_san(start_end_move[1])
+        start_piece = BoardUtils.piece_at_index_str(self.stockfish.board, start_index)
+        if start_piece == 'P':
             self.stockfish.move(move_san)
-            if self.stockfish.piece_at_index(to_square).piece_type != 1:
+            end_piece = BoardUtils.piece_at_index_str(self.stockfish.board, end_index)
+            if end_piece != 'P':
+                piece_type = end_piece
                 self.stockfish.undo()
-                return True
+                enable = True
             self.stockfish.undo()
-        return False
+
+        if enable:
+            piece = BoardUtils.expand_piece_name(piece_type)
+            return dict({"enable": enable, "piece": piece})
+        else:
+            return dict({"enable": enable})
 
     def _is_skewer(self, move_san):
 
