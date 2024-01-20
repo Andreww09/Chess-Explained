@@ -144,6 +144,15 @@ class Stockfish:
         return [(chess.square_name(move.from_square), chess.square_name(move.to_square)) for move in
                 self.board.legal_moves]
 
+    def start_end_from_san(self, move):
+        """
+        Tuple of (start_square, end_square) for the specified move
+
+        :return: (start_square, end_square) for the specified move
+        """
+        move = self.board.parse_san(move)
+        return (chess.square_name(move.from_square), chess.square_name(move.to_square))
+
     def moves_by(self, position):
         """
         List all legal moves for the piece on the specified square index
@@ -480,6 +489,16 @@ class Stockfish:
 
         return self.board.piece_at(chess.parse_square(position))
 
+    def position_from_move(self, move):
+        """
+        Get the position from the specified move
+
+        :param move: move string in SAN notation
+        :return: position from the specified move
+        """
+
+        return self.board.piece_at(chess.parse_square(move))
+
     def index_from_san(self, position):
         """
         Get the index from the specified position
@@ -489,3 +508,30 @@ class Stockfish:
         """
 
         return chess.parse_square(position)
+
+    def is_capture(self, move):
+        """
+        Check if the specified move is a capture
+
+        :param move: move in SAN notation
+        :return: True if the move is a capture, False otherwise
+        """
+
+        # convert the move to UCI notation and check if it is a capture
+        return self.board.is_capture(chess.Move.from_uci(str(self.board.parse_san(move))))
+
+    def is_en_passant(self, move):
+        """
+        Check if the specified move is an en passant
+
+        :param move: move in SAN notation
+        :return: True if the move is an en passant, False otherwise
+        """
+
+        # convert the move to UCI notation and check if it is an en passant
+        return self.board.is_en_passant(chess.Move.from_uci(str(self.board.parse_san(move))))
+
+    def get_attackers_at(self, color, poz):
+
+        attackers = self.board.attackers(color, poz)
+        return attackers
