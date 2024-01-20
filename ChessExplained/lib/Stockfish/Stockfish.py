@@ -473,6 +473,9 @@ class Stockfish:
         # make a copy of the board, so we don't modify the original board
         temp_board = self.board.copy()
 
+        if self.board.outcome():
+            return sequence
+
         with chess.engine.SimpleEngine.popen_uci(self.engine_path) as engine:
             for _ in range(num_moves):
                 # get the best move for the current board
@@ -638,4 +641,3 @@ class Stockfish:
             probability = 0
 
         return probability
-
