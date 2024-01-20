@@ -33,8 +33,19 @@ class StockfishExplainer:
         best_move = self.stockfish.best_move()
         explanation = f"The best move is {best_move}. "
 
+        # Make the move
+        self.stockfish.move(best_move)
+
+        # print board
+        self.stockfish.display()
+
+        # Undo the move
+        self.stockfish.undo()
+
+        is_pin = self._is_pin(best_move)
         is_fork = self._is_fork(best_move)
         is_capture = self.stockfish.is_capture(best_move)
+        is_check = self._is_check(best_move)
         is_checkmate = self._is_checkmate(best_move)
         is_en_passant = self.stockfish.is_en_passant(best_move)
         is_stalemate = self._is_stalemate(best_move)
@@ -45,8 +56,11 @@ class StockfishExplainer:
         is_castling = self._is_a_castling(best_move)
         is_pawn_promotion = self._is_pawn_promotion(best_move)
 
+        print("is_pin: ", is_pin)
         print("is_fork: ", is_fork)
+        print("is_check: ", is_check)
         print("is_checkmate: ", is_checkmate)
+        print("is_check_forced: ", self._is_move_check_forced())
         print("is_capture: ", is_capture)
         print("is_en_passant: ", is_en_passant)
         print("is_stalemate: ", is_stalemate)
@@ -79,9 +93,6 @@ class StockfishExplainer:
 
         # make the move
         self.stockfish.move(move_san)
-
-        # print board
-        self.stockfish.display()
 
         # get all captures by the moved piece
         captures = self.stockfish.capture_pieces_by_san(start_end_move[1])
@@ -211,12 +222,12 @@ class StockfishExplainer:
         return is_insufficient_material
 
     def _is_a_discovered_attack(self, move_san):
-        '''
+        """
             Determine if the move results in a discovered attack.
 
             :param move_san: Move in standard algebraic notation
             :return: True if the move results in a discovered attack, False otherwise
-        '''
+        """
 
         from_square = self.stockfish.board.parse_san(move_san).from_square
         to_square = self.stockfish.board.parse_san(move_san).to_square
@@ -247,4 +258,114 @@ class StockfishExplainer:
                 self.stockfish.undo()
                 return True
             self.stockfish.undo()
+        return False
+
+    def _is_en_passant(self, move_san):
+        return self.stockfish.is_en_passant(move_san)
+
+    def _is_capture(self, move_san):
+        return self.stockfish.is_capture(move_san)
+
+    def _is_check(self, move_san):
+        """
+        Determine if the move results in a check.
+
+        :param move_san: Move in standard algebraic notation
+        :return: True if the move results in a check, False otherwise
+        """
+
+        self.stockfish.move(move_san)
+        is_check = self.stockfish.board.is_check()
+        self.stockfish.undo()
+
+        return is_check
+
+    def _is_move_check_forced(self):
+        """
+        Determine if the move is forced by a check.
+
+        :return: True if the move is forced by a check, False otherwise
+        """
+
+        is_check = self.stockfish.board.is_check()
+        is_checkmate = self.stockfish.board.is_checkmate()
+
+        return is_check and not is_checkmate
+
+    def _is_pin(self, move_san):
+        """
+        Determine if the move results in a pin.
+
+        :param move_san: Move in standard algebraic notation
+        :return: True if the move results in a pin, False otherwise
+        """
+        # Get the square name of the moved piece
+        moved_square = self.stockfish.start_end_from_san(move_san)[1]
+
+        # Make the move
+        self.stockfish.move(move_san)
+
+        # Get the piece that is moved
+        moved_piece = self.stockfish.piece_at_san(moved_square)
+
+        # Check if the moved piece is a pawn, knight or king
+        if moved_piece == 'P' or moved_piece == 'N' or moved_piece == 'K':
+            # Undo the move
+            self.stockfish.undo()
+
+            # Return False if the moved piece is a pawn, knight or king
+            return False
+
+        # Get all the pieces that are attacked by the moved piece
+        attacked_pieces = set(self.stockfish.captures_by(moved_square))
+
+        # Make backup of board
+        board_backup = self.stockfish.board.copy()
+
+        for attacked_piece_square in attacked_pieces:
+            # Convert the attacked piece to a chess.Piece object
+            attacked_piece = self.stockfish.piece_at_san(attacked_piece_square)
+
+            # Remove the attacked piece from the board
+            self.stockfish.board.remove_piece_at(self.stockfish.index_from_san(attacked_piece_square))
+
+            # Get all the pieces that are attacked by the moved piece after the attacked piece is removed
+            attacked_pieces_after = set(self.stockfish.captures_by(moved_square))
+
+            # Add the attacked piece back to the board
+            self.stockfish.add_piece_at(chess.Piece(attacked_piece.piece_type, self.stockfish.board.turn),
+                                        self.stockfish.index_from_san(attacked_piece_square))
+
+            # Check if another piece is attacked by the moved piece after the attacked piece is removed
+            if len(attacked_pieces_after) > 0:
+                # Get the other attacked piece from behind the removed attacked piece
+                other_attacked_pieces = attacked_pieces_after.difference(attacked_pieces)
+
+                # Get the first other attacked piece
+                if len(other_attacked_pieces) > 0:
+                    other_attacked_piece = other_attacked_pieces.pop()
+                else:
+                    continue
+
+                # Convert the other attacked piece to a chess.Piece object
+                other_attacked_piece = self.stockfish.piece_at_san(other_attacked_piece)
+
+                # Check if there is a pin
+                if BoardUtils.is_pin_compatible(moved_piece, attacked_piece, other_attacked_piece):
+                    # Restore the board
+                    self.stockfish.board = board_backup
+
+                    # Undo the move
+                    self.stockfish.undo()
+
+                    # Return True if there is a pin
+                    return True
+
+        # Restore the board
+        self.stockfish.board = board_backup
+
+        # Undo the move
+        self.stockfish.undo()
+
+        # Return False if there is no pin
         return False

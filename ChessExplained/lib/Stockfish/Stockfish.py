@@ -253,23 +253,7 @@ class Stockfish:
         # convert the position to square index
         position_index = self.index_from_san(position)
 
-        # get the color of the piece
-        piece_color = self.board.color_at(position_index)
-
-        # get all the squares attacked by the piece
-        attacked_squares = self.board.attacks(position_index)
-
-        # initialize the list of captures
-        captures = []
-
-        # iterate through all the attacked squares
-        for square in attacked_squares:
-            # if the square is occupied by an opponent's piece, add the move to the list of captures
-            if self.board.piece_at(square) and self.board.color_at(square) != piece_color:
-                captures.append(chess.square_name(square))
-
-        # return the list of captures
-        return captures
+        return self.captures_by_index_position(position_index)
 
     def captures_by_index_position(self, position_index):
         # get the color of the piece
@@ -531,7 +515,8 @@ class Stockfish:
 
         return self.board.piece_at(chess.parse_square(move))
 
-    def index_from_san(self, position):
+    @staticmethod
+    def index_from_san(position):
         """
         Get the index from the specified position
 
@@ -563,7 +548,32 @@ class Stockfish:
         # convert the move to UCI notation and check if it is an en passant
         return self.board.is_en_passant(chess.Move.from_uci(str(self.board.parse_san(move))))
 
+    def is_check(self):
+        """
+        Check if the current board is in check
+
+        :return: True if the board is in check, False otherwise
+        """
+
+        return self.board.is_check()
+
     def get_attackers_at(self, color, poz):
 
         attackers = self.board.attackers(color, poz)
         return attackers
+
+    def remove_piece_at(self, poz):
+        self.board.remove_piece_at(poz)
+
+    def add_piece_at(self, piece, poz):
+        self.board.set_piece_at(poz, piece)
+
+    def make_reverse_san_move(self, move):
+        """
+        Make the reverse of the specified move
+
+        :param move: move in SAN notation to be reversed
+        :return: True if reversed move is valid, False otherwise
+        """
+
+        pass

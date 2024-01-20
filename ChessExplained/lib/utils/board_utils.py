@@ -33,3 +33,15 @@ class BoardUtils:
             return True
 
         return False
+
+    @staticmethod
+    def is_pin_compatible(piece1, piece2, piece3):
+        # If piece3 is not more valuable than piece2, then it is not a pin
+        if piece3.piece_type <= piece2.piece_type:
+            return False
+
+        # If piece3 is not more valuable than piece1, then it is not a pin
+        if piece3.piece_type <= piece1.piece_type:
+            return False
+
+        return True
