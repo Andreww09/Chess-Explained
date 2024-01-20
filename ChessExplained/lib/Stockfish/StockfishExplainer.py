@@ -7,7 +7,6 @@ class StockfishExplainer:
     """
     Class used to provide explanations for moves suggested by Stockfish
     """
-
     def __init__(self, stockfish):
         """
         Constructor for StockfishExplainer class.
@@ -45,6 +44,8 @@ class StockfishExplainer:
         is_castling = self._is_a_castling(best_move)
         is_pawn_promotion = self._is_pawn_promotion(best_move)
         is_skewer = self._is_skewer(best_move)
+        is_forced_checkmate = self._is_forced_checkmate(best_move)
+
         print("is_fork: ", is_fork)
         print("is_checkmate: ", is_checkmate)
         print("is_capture: ", is_capture)
@@ -57,6 +58,14 @@ class StockfishExplainer:
         print("is_castling: ", is_castling)
         print("is_pawn_promotion: ", is_pawn_promotion)
         print("is_skewer: ", is_skewer)
+        print("is_forced_checkmate: ", is_forced_checkmate)
+
+
+        print("---------------------------------------------------")
+        advantage_color, probability = self._calculate_winning_prob()
+
+        print("Player that has advantage: " + str(advantage_color))
+        print("Winning probability: " + str(probability))
 
         return explanation
 
@@ -308,3 +317,18 @@ class StockfishExplainer:
             return True
 
         return False
+
+    def _is_forced_checkmate(self, move_san):
+        self.stockfish.move(move_san)
+        eval_first_item = self.stockfish.first_item_evaluation()
+        self.stockfish.undo()
+
+        return eval_first_item[0] == 'M'
+
+    def _calculate_winning_prob(self):
+        eval_first_item = self.stockfish.first_item_evaluation()
+        score_cp = self.stockfish.get_evaluation_score(eval_first_item)
+        color = self.stockfish.get_color_eval_score(eval_first_item)
+        probability = self.stockfish.winning_probability(score_cp)
+
+        return color, probability

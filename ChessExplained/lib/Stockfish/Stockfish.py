@@ -1,3 +1,5 @@
+import math
+
 import chess
 import chess.engine
 
@@ -498,6 +500,41 @@ class Stockfish:
             info = engine.analyse(self.board, chess.engine.Limit(time=0.1))
             return info["score"]
 
+    def first_item_evaluation(self):
+        """
+           Evaluate the current board
+
+           :return: first item of evaluation
+        """
+        eval_result = str(self.evaluation())
+        eval_result = eval_result[eval_result.find('('):]
+        eval_result = eval_result.strip('()')
+        eval_result = eval_result[:eval_result.find(',')]
+        return eval_result
+
+    def get_evaluation_score(self, eval_first_item):
+        """
+            Evaluate the current board
+
+           :return: evaluation score
+        """
+        eval_first_item = eval_first_item[eval_first_item.find('('):]
+        eval_first_item = eval_first_item.strip('()')
+        return int(eval_first_item[1:])
+
+    def get_color_eval_score(self, eval_first_item):
+        """
+            Evaluate the current board
+
+           :return: color of player in advantage
+        """
+        eval_first_item = eval_first_item[eval_first_item.find('('):]
+        eval_first_item = eval_first_item.strip('()')
+        if eval_first_item[0] == '+':
+            return True
+        else:
+            return False
+
     def piece_at_index(self, index):
         """
         Get the piece at the specified index
@@ -567,3 +604,32 @@ class Stockfish:
 
         attackers = self.board.attackers(color, poz)
         return attackers
+
+    def get_number_of_pieces(self):
+        pieces = 0
+        for square in chess.SQUARES:
+            if self.board.piece_at(square):
+                pieces += 1
+
+        return pieces
+
+    def winning_probability(self, score_cp):
+        """
+            Compute the winning probability based on the chess engine's score.
+
+            :param score_cp: The engine's score in centipawns.
+            :return: Probability of winning.
+            """
+        # Coefficient to determine how quickly the probability increases
+        coefficient = 0.004
+        # Exponential function: e^(coefficient * score)
+        # The function maps 0.0 score to 0.5 probability (50%)
+        # Positive scores will give probabilities > 50%, and negative scores < 50%
+        score_cp /= 100
+        if self.get_number_of_pieces() <= 7 and score_cp == 0.00:
+            probability = 0
+        else:
+            probability = 1 / (1 + math.exp(-coefficient * score_cp))
+
+        return probability
+
