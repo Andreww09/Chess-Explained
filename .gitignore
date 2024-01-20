@@ -3,5 +3,5 @@ tema1/db.sqlite3
 venv
 stockfish
 lib/Stockfish/__pycache__/
-lib/utils/__pycache__
+lib/utils/__pycache__/
 lib/__pycache__/
