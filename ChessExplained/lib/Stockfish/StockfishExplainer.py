@@ -44,7 +44,7 @@ class StockfishExplainer:
         is_discovered_attack = self._is_a_discovered_attack(best_move)
         is_castling = self._is_a_castling(best_move)
         is_pawn_promotion = self._is_pawn_promotion(best_move)
-
+        is_skewer = self._is_skewer(best_move)
         print("is_fork: ", is_fork)
         print("is_checkmate: ", is_checkmate)
         print("is_capture: ", is_capture)
@@ -56,6 +56,7 @@ class StockfishExplainer:
         print("is_discovered_attack: ", is_discovered_attack)
         print("is_castling: ", is_castling)
         print("is_pawn_promotion: ", is_pawn_promotion)
+        print("is_skewer: ", is_skewer)
 
         return explanation
 
@@ -154,15 +155,15 @@ class StockfishExplainer:
 
         # type of the piece that was captured
         index = self.stockfish.index_from_san(start_end_move[1])
-        old_piece = self.stockfish.piece_at_index(index)
+        old_piece = self.stockfish.board.piece_at(index)
 
         self.stockfish.move(move_san)
         # type of the piece that was moved
-        new_piece = str(self.stockfish.piece_at_index(index)).upper()
+        new_piece = BoardUtils.piece_at_index_str(self.stockfish.board, index)
         # all the squares (as integers) that attack the moved piece
-        attackers = self.stockfish.get_attackers_at(self.stockfish.board.turn, index)
+        attackers = BoardUtils.get_attackers_at_index(self.stockfish.board, self.stockfish.board.turn, index)
         # all the squares that protect the moved piece
-        protectors = self.stockfish.get_attackers_at(not self.stockfish.board.turn, index)
+        protectors = BoardUtils.get_attackers_at_index(self.stockfish.board, not self.stockfish.board.turn, index)
 
         # undo the move
         self.stockfish.undo()
@@ -174,7 +175,7 @@ class StockfishExplainer:
             else:
                 # the piece is protected but is attacked and can be taken by a weaker piece
                 for attacker in attackers:
-                    piece = str(self.stockfish.piece_at_index(attacker)).upper()
+                    piece = BoardUtils.piece_at_index_str(self.stockfish.board, attacker)
                     if self.piece_value[piece] < self.piece_value[new_piece]:
                         return True
                 return False
@@ -247,4 +248,63 @@ class StockfishExplainer:
                 self.stockfish.undo()
                 return True
             self.stockfish.undo()
+        return False
+
+    def _is_skewer(self, move_san):
+
+        start_end_move = self.stockfish.start_end_from_san(move_san)
+
+        # index of best move
+        index = self.stockfish.index_from_san(start_end_move[1])
+
+        self.stockfish.move(move_san)
+
+        # all the squares attacked be the moved piece
+        previously_attacked_pieces = self.stockfish.board.attacks(index)
+
+        # a skewer requires two extra moves for completion
+        best_moves = self.stockfish.best_move_sequence(2)
+
+        if len(best_moves) < 2:
+            self.stockfish.undo()
+            return False
+
+        # indexes for the starting and ending position of the first move in the sequence
+        start_first_move, end_first_move = self.stockfish.start_end_from_san(best_moves[0])
+        start_first_move = self.stockfish.index_from_san(start_first_move)
+        end_first_move = self.stockfish.index_from_san(end_first_move)
+
+        # type of the attacked and attacking piece to be compared
+        attacked_piece = BoardUtils.piece_at_index_str(self.stockfish.board, start_first_move)
+        attacking_piece = BoardUtils.piece_at_index_str(self.stockfish.board, index)
+
+        # get all the attacked squares after the opponent played an optimal move
+        self.stockfish.move(best_moves[0])
+        attacked_pieces = self.stockfish.board.attacks(index)
+
+        # indexes for the second move in the sequence
+        start_second_move, end_second_move = self.stockfish.start_end_from_san(best_moves[1])
+        start_second_move = self.stockfish.index_from_san(start_second_move)
+        end_second_move = self.stockfish.index_from_san(end_second_move)
+
+        # undo the moves
+        self.stockfish.undo()
+        self.stockfish.undo()
+
+        # a skewer requires to attack a higher value piece
+        if self.piece_value[attacking_piece] >= self.piece_value[attacked_piece]:
+            return False
+
+        # the opponent move must move an attacked piece to be a skewer
+        if start_first_move not in previously_attacked_pieces:
+            return False
+
+        # the opponent must take the higher piece to safety
+        if end_first_move in attacked_pieces:
+            return False
+
+        # the attacking piece must capture a piece in the next move that was defended previously
+        if start_second_move == index and end_second_move not in previously_attacked_pieces and "x" in best_moves[1]:
+            return True
+
         return False

@@ -33,3 +33,13 @@ class BoardUtils:
             return True
 
         return False
+
+    @staticmethod
+    def get_attackers_at_index(board, color, poz):
+
+        attackers = board.attackers(color, poz)
+        return attackers
+
+    @staticmethod
+    def piece_at_index_str(board, index):
+        return str(board.piece_at(index)).upper()
