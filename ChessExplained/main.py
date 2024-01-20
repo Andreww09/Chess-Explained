@@ -12,7 +12,7 @@ for move in moves:
 
 stockfish.display_board()
 
-new_game = "3k4/8/8/3n4/8/8/4Q3/3K4 b - - 0 1"
+new_game = "4k3/4q3/8/8/4B3/4R3/4R3/4K3 w - - 2 2"
 stockfish.setup_game(new_game)
 
 # print board evaluation
@@ -23,3 +23,13 @@ print("Best move according to Stockfish:", best_move)
 
 stockfish_explainer = StockfishExplainer(stockfish)
 print(stockfish_explainer.explain())
+
+
+# if anybody needs for testing :)
+
+# print a board with numbers
+# for i in range(8):
+#     for j in range(8):
+#         print(i * 8 + j, end=" ")
+#
+#     print()

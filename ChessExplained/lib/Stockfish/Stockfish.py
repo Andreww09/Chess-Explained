@@ -144,6 +144,14 @@ class Stockfish:
             return "Draw due to insufficient material"
         return "Game ongoing"
 
+    def change_turn(self):
+        """
+        Change the turn of the board
+
+        :return: None
+        """
+        self.board.turn = not self.board.turn
+
     def list_legal_moves(self):
         """
         List all legal moves for the current board
