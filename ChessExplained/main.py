@@ -1,7 +1,7 @@
 from lib.Stockfish.Stockfish import Stockfish
 from lib.Stockfish.StockfishExplainer import StockfishExplainer
 
-engine_path = "../stockfish/stockfish-windows-x86-64-modern.exe"
+engine_path = "./stockfish/stockfish-windows-x86-64-modern.exe"
 # engine_path = "../stockfish/stockfish-windows-x86-64-avx.exe"
 stockfish = Stockfish(engine_path)
 

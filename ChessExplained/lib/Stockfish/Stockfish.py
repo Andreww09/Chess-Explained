@@ -151,7 +151,7 @@ class Stockfish:
         :return: (start_square, end_square) for the specified move
         """
         move = self.board.parse_san(move)
-        return (chess.square_name(move.from_square), chess.square_name(move.to_square))
+        return chess.square_name(move.from_square), chess.square_name(move.to_square)
 
     def moves_by(self, position):
         """
@@ -253,9 +253,6 @@ class Stockfish:
         # convert the position to square index
         position_index = self.index_from_san(position)
 
-        # get the piece at the specified index
-        piece = self.board.piece_at(position_index)
-
         # get the color of the piece
         piece_color = self.board.color_at(position_index)
 
@@ -284,9 +281,6 @@ class Stockfish:
 
         # convert the position to square index
         position_index = self.index_from_san(position)
-
-        # get the piece at the specified index
-        piece = self.board.piece_at(position_index)
 
         # get the color of the piece
         piece_color = self.board.color_at(position_index)
