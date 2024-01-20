@@ -191,8 +191,7 @@ class Stockfish:
     def get_piece_at_index(self, index):
         return self.board.piece_at(index)
 
-    def get_attackers_at(self, color, move_san):
+    def get_attackers_at(self, color, poz):
 
-        poz = self.get_index_from_san(move_san)
         attackers = self.board.attackers(color, poz)
         return attackers

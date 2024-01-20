@@ -98,9 +98,9 @@ class StockfishExplainer:
         # type of the piece that was moved
         new_piece = str(self.stockfish.get_piece_at_index(index)).upper()
         # all the squares (as integers) that attack the moved piece
-        attackers = self.stockfish.get_attackers_at(self.stockfish.board.turn, move_san)
+        attackers = self.stockfish.get_attackers_at(self.stockfish.board.turn, index)
         # all the squares that protect the moved piece
-        protectors = self.stockfish.get_attackers_at(not self.stockfish.board.turn, move_san)
+        protectors = self.stockfish.get_attackers_at(not self.stockfish.board.turn, index)
 
         # undo the move
         self.stockfish.board.pop()
