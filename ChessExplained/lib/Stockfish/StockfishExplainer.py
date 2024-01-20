@@ -398,7 +398,7 @@ class StockfishExplainer:
 
     def _is_sicilian_defense(self, move_san):
         self.stockfish.move(move_san)
-        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1"):
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pp2pppp/8/3p4/3P4/8/PPP2PPP/R1BQKBNR w KQkq - 0 3"):
             self.stockfish.undo()
             return True
         self.stockfish.undo()
@@ -622,7 +622,7 @@ class StockfishExplainer:
 
     def _is_kings_indian(self, move_san):
         self.stockfish.move(move_san)
-        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 2"):
+        if self.stockfish.board.fen().startswith("rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP2PPP/R1BQKBNR w KQkq - 0 4"):
             self.stockfish.undo()
             return True
         self.stockfish.undo()
@@ -630,7 +630,7 @@ class StockfishExplainer:
 
     def _is_kings_fianchetto_opening(self, move_san):
         self.stockfish.move(move_san)
-        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1"):
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/8/6P1/PPPPPP1P/RNBQKBNR b KQkq - 0 1"):
             self.stockfish.undo()
             return True
         self.stockfish.undo()
@@ -638,7 +638,7 @@ class StockfishExplainer:
 
     def _is_nimzowitsch_larsen_attack(self, move_san):
         self.stockfish.move(move_san)
-        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1"):
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/8/1P6/P1PPPPPP/RNBQKBNR b KQkq - 0 1"):
             self.stockfish.undo()
             return True
         self.stockfish.undo()
@@ -646,7 +646,7 @@ class StockfishExplainer:
 
     def _is_polish_opening(self, move_san):
         self.stockfish.move(move_san)
-        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/8/1P6/P1PPPPPP/RNBQKBNR b KQkq - 0 1"):
+        if self.stockfish.board.fen().startswith("rnbqkbnr/pppppppp/8/8/1P6/8/PPPPPP1P/RNBQKBNR b KQkq - 0 1"):
             self.stockfish.undo()
             return True
         self.stockfish.undo()
