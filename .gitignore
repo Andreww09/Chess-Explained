@@ -5,3 +5,4 @@ stockfish
 lib/Stockfish/__pycache__/
 lib/utils/__pycache__/
 lib/__pycache__/
+ChessExplained/lib/utils/__pycache__/

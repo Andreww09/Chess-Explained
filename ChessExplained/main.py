@@ -8,8 +8,6 @@ stockfish = Stockfish(engine_path)
 new_game = "8/6r1/5n2/8/8/4B3/1k6/7K w - - 0 1"
 stockfish.setup(new_game)
 
-print("Current board: ")
-
 stockfish_explainer = StockfishExplainer(stockfish)
 print(stockfish_explainer.explain())
 
