@@ -241,9 +241,9 @@ class StockfishExplainer:
     def _is_pawn_promotion(self, move_san):
         from_square = self.stockfish.board.parse_san(move_san).from_square
         to_square = self.stockfish.board.parse_san(move_san).to_square
-        if self.stockfish.board.piece_at(from_square).piece_type == 1:
+        if self.stockfish.piece_at_index(from_square).piece_type == 1:
             self.stockfish.move(move_san)
-            if self.stockfish.board.piece_at(to_square).piece_type != 1:
+            if self.stockfish.piece_at_index(to_square).piece_type != 1:
                 self.stockfish.undo()
                 return True
             self.stockfish.undo()
