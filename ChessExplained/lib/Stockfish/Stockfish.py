@@ -477,7 +477,10 @@ class Stockfish:
         :return: piece at the specified index
         """
 
-        return str(self.board.piece_at(index)).upper()
+        return self.board.piece_at(index)
+
+    def piece_at_index_str(self, index):
+        return str(self.piece_at_index(index)).upper()
 
     def piece_at_san(self, position):
         """

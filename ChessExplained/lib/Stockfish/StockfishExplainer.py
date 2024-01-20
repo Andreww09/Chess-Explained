@@ -170,7 +170,6 @@ class StockfishExplainer:
                     if self.piece_value[piece] < self.piece_value[new_piece]:
                         return True
                 return False
-
         old_piece = str(old_piece).upper()
 
         # the piece was traded for a lower value piece

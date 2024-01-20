@@ -5,7 +5,7 @@ engine_path = "../stockfish/stockfish-windows-x86-64-modern.exe"
 # engine_path = "../stockfish/stockfish-windows-x86-64-avx.exe"
 stockfish = Stockfish(engine_path)
 
-new_game = "4n2k/8/5Q2/8/2K5/8/8/8 b - - 0 2"
+new_game = "7k/6q1/8/8/8/8/1Q1B4/4K3 w - - 0 1"
 stockfish.setup(new_game)
 
 stockfish_explainer = StockfishExplainer(stockfish)
@@ -53,7 +53,7 @@ print(stockfish_explainer.explain())
 # print("Board evaluation: ", stockfish.evaluation())
 # print("Get index from SAN: ", stockfish.index_from_san("e4"))
 # print("Get piece from SAN: ", stockfish.piece_at_san("e4"))
-# print("Get piece from index: ", stockfish.piece_at_index(28))
+# print("Get piece from index: ", stockfish.piece_at_index_str(28))
 
 
 
