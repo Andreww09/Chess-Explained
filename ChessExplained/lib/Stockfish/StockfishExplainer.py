@@ -112,18 +112,20 @@ class StockfishExplainer:
         :param move_san: Move in standard algebraic notation
         :return: True if the move results in a battery, False otherwise
         """
+        # Get the index of the moved piece
+        move_index = chess.parse_square(self.stockfish.start_end_from_san(move_san)[1])
+
         self.stockfish.move(move_san)
 
-        # Check if there is a battery after the move
-        is_battery = False
-
-        move_index = BoardUtils.get_index_from_san(move_san)
+        # Get the moved piece
         move_piece = self.stockfish.board.piece_at(move_index)
 
         # Get the pieces that are attacking the moved piece (the same color as the moved piece)
         self.stockfish.switch_turn()
         attackers = BoardUtils.get_attackers_at_square(self.stockfish.board, move_index)
         self.stockfish.switch_turn()
+
+        is_battery = False
 
         # Check if there is a battery
         for attacker in attackers:

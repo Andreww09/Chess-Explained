@@ -18,13 +18,6 @@ class BoardUtils:
         return False
 
     @staticmethod
-    def get_index_from_san(move_san):
-        move = move_san.replace("+", "")
-        index = chess.parse_square(move[-2:])
-
-        return index
-
-    @staticmethod
     def get_attackers_at_square(board, square):
         attackers = board.attackers(board.turn, square)
 
