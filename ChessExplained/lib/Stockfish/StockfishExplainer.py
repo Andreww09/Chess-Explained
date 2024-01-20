@@ -7,6 +7,7 @@ class StockfishExplainer:
     """
     Class used to provide explanations for moves suggested by Stockfish
     """
+
     def __init__(self, stockfish):
         """
         Constructor for StockfishExplainer class.
@@ -41,7 +42,7 @@ class StockfishExplainer:
         is_battery = self._is_battery(best_move)
         is_sacrifice = self._is_sacrifice(best_move)
         is_discovered_attack = self._is_a_discovered_attack(best_move)
-        is_castling = self._is_a_castling(best_move)
+        is_castling = self._is_a_castling(best_move)["enable"]
         is_pawn_promotion = self._is_pawn_promotion(best_move)
         is_skewer = self._is_skewer(best_move)
         is_forced_checkmate = self._is_forced_checkmate(best_move)
@@ -309,7 +310,15 @@ class StockfishExplainer:
         return False
 
     def _is_a_castling(self, move_san):
-        return self.stockfish.board.is_castling(self.stockfish.board.parse_san(move_san))
+        enable = self.stockfish.board.is_castling(self.stockfish.board.parse_san(move_san))
+        from_square = self.stockfish.board.parse_san(move_san).from_square
+        to_square = self.stockfish.board.parse_san(move_san).to_square
+        if chess.square_rank(from_square) < chess.square_rank(to_square):
+            side = "KingSide"
+        else:
+            side = "QueenSide"
+
+        return dict({"enable": enable, "side": side})
 
     def _is_pawn_promotion(self, move_san):
         from_square = self.stockfish.board.parse_san(move_san).from_square
