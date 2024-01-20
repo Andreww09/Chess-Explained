@@ -31,10 +31,11 @@ class StockfishExplainer:
         """
         best_move = self.stockfish.best_move()
         explanation = f"The best move is {best_move}. "
+        dict = {}
 
         is_fork = self._is_fork(best_move)
         is_capture = self.stockfish.is_capture(best_move)
-        is_checkmate = self._is_checkmate(best_move)
+        dict['checkmate'] = self._is_checkmate(best_move)
         is_en_passant = self.stockfish.is_en_passant(best_move)
         is_stalemate = self._is_stalemate(best_move)
         is_insufficient_material = self._is_insufficient_material(best_move)
@@ -79,7 +80,7 @@ class StockfishExplainer:
         is_grob_opening = self._is_grob_opening(best_move)
 
         print("is_fork: ", is_fork)
-        print("is_checkmate: ", is_checkmate)
+        print("is_checkmate: ", dict['checkmate']['enable'])
         print("is_capture: ", is_capture)
         print("is_en_passant: ", is_en_passant)
         print("is_stalemate: ", is_stalemate)
@@ -123,6 +124,9 @@ class StockfishExplainer:
         print("is_italian_game: ", is_italian_game)
         print("is_grunfeld_defense: ", is_grunfeld_defense)
         print("is_grob_opening: ", is_grob_opening)
+
+        if dict['checkmate']['enable']:
+            explanation += f"{dict['checkmate']['piece']} delivers checkmate. "
 
         print("---------------------------------------------------")
         advantage_color, probability = self._calculate_winning_prob()
@@ -179,10 +183,34 @@ class StockfishExplainer:
         :param move_san: Move in standard algebraic notation
         :return: True if the move results in a checkmate, False otherwise
         """
+
+        dict = {}
+
         self.stockfish.move(move_san)
         is_checkmate = self.stockfish.board.is_checkmate()
         self.stockfish.undo()
-        return is_checkmate
+
+        # get piece that delivers checkmate
+        if is_checkmate:
+            start_end_move = self.stockfish.start_end_from_san(move_san)
+            index = self.stockfish.index_from_san(start_end_move[0])
+            piece = BoardUtils.piece_at_index_str(self.stockfish.board, index)
+            if piece == 'P':
+                piece = 'Pawn'
+            elif piece == 'N':
+                piece = 'Knight'
+            elif piece == 'B':
+                piece = 'Bishop'
+            elif piece == 'R':
+                piece = 'Rook'
+            elif piece == 'Q':
+                piece = 'Queen'
+            elif piece == 'K':
+                piece = 'King'
+            dict['piece'] = piece
+
+        dict['enable'] = is_checkmate
+        return dict
 
     def _is_battery(self, move_san):
         """

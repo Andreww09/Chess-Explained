@@ -1,11 +1,11 @@
 from lib.Stockfish.Stockfish import Stockfish
 from lib.Stockfish.StockfishExplainer import StockfishExplainer
 
-engine_path = "./stockfish/stockfish-windows-x86-64-modern.exe"
+engine_path = "../stockfish/stockfish-windows-x86-64-modern.exe"
 # engine_path = "../stockfish/stockfish-windows-x86-64-avx.exe"
 stockfish = Stockfish(engine_path)
 
-new_game = "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
+new_game = "7k/R7/8/8/8/8/1Q6/6K1 w - - 0 1"
 stockfish.setup(new_game)
 
 stockfish_explainer = StockfishExplainer(stockfish)
