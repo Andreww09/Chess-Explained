@@ -5,7 +5,7 @@ engine_path = "./stockfish/stockfish-windows-x86-64-modern.exe"
 # engine_path = "../stockfish/stockfish-windows-x86-64-avx.exe"
 stockfish = Stockfish(engine_path)
 
-new_game = "6k1/1P6/8/8/8/8/8/3K4 w - - 0 1"
+new_game = "1rr1k2b/5n2/4p1p1/8/q7/8/1NP4B/RK6 w - - 0 1"
 stockfish.setup(new_game)
 
 stockfish_explainer = StockfishExplainer(stockfish)

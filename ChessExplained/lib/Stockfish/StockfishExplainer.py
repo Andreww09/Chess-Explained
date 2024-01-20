@@ -65,7 +65,7 @@ class StockfishExplainer:
         advantage_color, probability = self._calculate_winning_prob()
 
         print("Player that has advantage: " + str(advantage_color))
-        print("Winning probability: " + str(probability))
+        print("Winning probability: " + str(probability * 100) + "%")
 
         return explanation
 

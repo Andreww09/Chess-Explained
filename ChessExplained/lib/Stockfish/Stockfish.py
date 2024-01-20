@@ -510,6 +510,7 @@ class Stockfish:
         eval_result = eval_result[eval_result.find('('):]
         eval_result = eval_result.strip('()')
         eval_result = eval_result[:eval_result.find(',')]
+
         return eval_result
 
     def get_evaluation_score(self, eval_first_item):
@@ -518,9 +519,12 @@ class Stockfish:
 
            :return: evaluation score
         """
+        if eval_first_item[0] == 'M':
+            return -100000 if eval_first_item[5] == '-' else 100000
+
         eval_first_item = eval_first_item[eval_first_item.find('('):]
         eval_first_item = eval_first_item.strip('()')
-        return int(eval_first_item[1:])
+        return int(eval_first_item)
 
     def get_color_eval_score(self, eval_first_item):
         """
@@ -620,16 +624,18 @@ class Stockfish:
             :param score_cp: The engine's score in centipawns.
             :return: Probability of winning.
             """
-        # Coefficient to determine how quickly the probability increases
-        coefficient = 0.004
-        # Exponential function: e^(coefficient * score)
-        # The function maps 0.0 score to 0.5 probability (50%)
-        # Positive scores will give probabilities > 50%, and negative scores < 50%
+        coefficient = 0.1
         score_cp /= 100
         if self.get_number_of_pieces() <= 7 and score_cp == 0.00:
             probability = 0
         else:
             probability = 1 / (1 + math.exp(-coefficient * score_cp))
+
+        if (1 - probability) < 0.0001:
+            probability = 1
+
+        if probability < 0.0001:
+            probability = 0
 
         return probability
 
