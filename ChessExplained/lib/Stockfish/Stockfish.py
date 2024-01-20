@@ -271,6 +271,25 @@ class Stockfish:
         # return the list of captures
         return captures
 
+    def captures_by_index_position(self, position_index):
+        # get the color of the piece
+        piece_color = self.board.color_at(position_index)
+
+        # get all the squares attacked by the piece
+        attacked_squares = self.board.attacks(position_index)
+
+        # initialize the list of captures
+        captures = []
+
+        # iterate through all the attacked squares
+        for square in attacked_squares:
+            # if the square is occupied by an opponent's piece, add the move to the list of captures
+            if self.board.piece_at(square) and self.board.color_at(square) != piece_color:
+                captures.append(chess.square_name(square))
+
+        # return the list of captures
+        return captures
+
     def captures_by_san(self, position):
         """
         List all pieces attacked by the piece on the specified position
@@ -405,6 +424,22 @@ class Stockfish:
 
         # return the list of captures
         return captures
+
+    def captures_except_square_allowing_duplicates(self, square):
+        """
+            List squares of pieces that are under attack by the current player, allowing duplicates, except those
+            which are attacked by square
+
+            :param square: The square to avoid counting attacked pieces by.
+            :return: List of squares as strings
+        """
+        attacked_squares = []
+        for current_square in chess.SQUARES:
+            if current_square == square:
+                continue
+            if self.board.piece_at(current_square) and self.board.color_at(current_square) == self.board.turn:
+                attacked_squares += self.captures_by_index_position(current_square)
+        return attacked_squares
 
     def best_move(self, time_limit=2.0):
         """

@@ -41,6 +41,9 @@ class StockfishExplainer:
         is_insufficient_material = self._is_insufficient_material(best_move)
         is_battery = self._is_battery(best_move)
         is_sacrifice = self._is_sacrifice(best_move)
+        is_discovered_attack = self._is_a_discovered_attack(best_move)
+        is_castling = self._is_a_castling(best_move)
+        is_pawn_promotion = self._is_pawn_promotion(best_move)
 
         print("is_fork: ", is_fork)
         print("is_checkmate: ", is_checkmate)
@@ -50,6 +53,9 @@ class StockfishExplainer:
         print("is_insufficient_material: ", is_insufficient_material)
         print("is_battery: ", is_battery)
         print("is_sacrifice: ", is_sacrifice)
+        print("is_discovered_attack: ", is_discovered_attack)
+        print("is_castling: ", is_castling)
+        print("is_pawn_promotion: ", is_pawn_promotion)
 
         return explanation
 
@@ -203,3 +209,42 @@ class StockfishExplainer:
         is_insufficient_material = self.stockfish.board.is_insufficient_material()
         self.stockfish.undo()
         return is_insufficient_material
+
+    def _is_a_discovered_attack(self, move_san):
+        '''
+            Determine if the move results in a discovered attack.
+
+            :param move_san: Move in standard algebraic notation
+            :return: True if the move results in a discovered attack, False otherwise
+        '''
+
+        from_square = self.stockfish.board.parse_san(move_san).from_square
+        to_square = self.stockfish.board.parse_san(move_san).to_square
+
+        squares_before_move = self.stockfish.captures_except_square_allowing_duplicates(from_square)
+
+        self.stockfish.move(move_san)
+        self.stockfish.board.turn = not self.stockfish.board.turn
+
+        squares_after_move = self.stockfish.captures_except_square_allowing_duplicates(to_square)
+
+        self.stockfish.undo()
+
+        for attacked_square in squares_after_move:
+            if squares_after_move.count(attacked_square) > squares_before_move.count(attacked_square):
+                return True
+        return False
+
+    def _is_a_castling(self, move_san):
+        return self.stockfish.board.is_castling(self.stockfish.board.parse_san(move_san))
+
+    def _is_pawn_promotion(self, move_san):
+        from_square = self.stockfish.board.parse_san(move_san).from_square
+        to_square = self.stockfish.board.parse_san(move_san).to_square
+        if self.stockfish.board.piece_at(from_square).piece_type == 1:
+            self.stockfish.move(move_san)
+            if self.stockfish.board.piece_at(to_square).piece_type != 1:
+                self.stockfish.undo()
+                return True
+            self.stockfish.undo()
+        return False
