@@ -1,7 +1,7 @@
 from back.detectors import OpeningsDetector
 from back.detectors import TechniquesDetector
 from back.stockfish_tools.explanation_builder import ExplanationBuilder
-# from back.OpenAI import OpenAI
+from back.OpenAI import OpenAI
 from back.utils import BoardUtils
 
 
@@ -104,15 +104,27 @@ class StockfishExplainer:
         print("---------------------------------------------------")
         advantage_color, probability = self._calculate_winning_prob()
 
+        # check checkmate, forced checkmate
+        if techniques['checkmate']['enable'] or techniques['forced_checkmate']['enable']:
+            probability = 100
+        elif techniques['stalemate']['enable'] or techniques['insufficient_material']['enable']:
+            probability = 0
+
+        advantage_color = "white" if advantage_color else "black"
+        probability = round(probability, 2)
+
         print("Player that has advantage: " + str(advantage_color))
         print("Winning probability: " + str(probability * 100) + "%")
 
         explainer = ExplanationBuilder(techniques)
         explanation += explainer.build_explanation()
 
+        explanation += f" The current player has a winning probability of {probability * 100}%"
+        explanation += "The player that has advantage is " + advantage_color + ". "
+
         # OpenAI
-        # openai = OpenAI()
-        # explanation = openai.reword(explanation)
+        openai = OpenAI()
+        explanation = openai.reword(explanation)
 
         return explanation
 

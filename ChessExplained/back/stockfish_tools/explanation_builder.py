@@ -5,21 +5,42 @@ class ExplanationBuilder:
 
     def build_explanation(self):
         explanation = ""
+        explanation += self.capture_explanation(self.dictionary['capture'])
+        explanation += self.checkmate_explanation(self.dictionary['checkmate'])
+        explanation += self.insufficient_material_explanation(self.dictionary['insufficient_material'])
+        explanation += self.stalemate_explanation(self.dictionary['stalemate'])
         explanation += self.check_explanation(self.dictionary['check'])
         explanation += self.check_forced_explanation(self.dictionary['check_forced'])
         explanation += self.en_passant_explanation(self.dictionary['en_passant'])
+        explanation += self.battery_explanation(self.dictionary['battery'])
         explanation += self.castling_explanation(self.dictionary['castling'])
-        explanation += self.pawn_promotion_explanation(self.dictionary['pawn_promotion'])
         explanation += self.sacrifice_explanation(self.dictionary['sacrifice'])
-        explanation += self.stalemate_explanation(self.dictionary['stalemate'])
-        explanation += self.insufficient_material_explanation(self.dictionary['insufficient_material'])
-        explanation += self.capture_explanation(self.dictionary['capture'])
-        explanation += self.checkmate_explanation(self.dictionary['checkmate'])
+        explanation += self.pawn_promotion_explanation(self.dictionary['pawn_promotion'])
+        explanation += self.discovered_attack_explanation(self.dictionary['discovered_attack'])
+        explanation += self.forced_checkmate_explanation(self.dictionary['forced_checkmate'])
         explanation += self.skewer_explanation(self.dictionary['skewer'])
         explanation += self.pin_explanation(self.dictionary['pin'])
-        explanation += self.battery_explanation(self.dictionary['battery'])
-        explanation += self.discovered_attack_explanation(self.dictionary['discovered_attack'])
+        explanation += self.fork_explanation(self.dictionary['fork'])
+
         return explanation
+
+    @staticmethod
+    def fork_explanation(info):
+        if info['enable'] is False:
+            return ""
+        text = f" It forks the following pieces: "
+        for piece in info['forked']:
+            text += f"{piece}, "
+        text = text[:-2]
+        text += "."
+        return text
+
+    @staticmethod
+    def forced_checkmate_explanation(info):
+        if info['enable'] is False:
+            return ""
+
+        return f"The piece {info['piece']} sets up a forced checkmate."
 
     @staticmethod
     def checkmate_explanation(info):

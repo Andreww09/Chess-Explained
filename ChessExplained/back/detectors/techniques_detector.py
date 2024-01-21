@@ -58,6 +58,8 @@ class TechniquesDetector:
         :return: True if the move results in a fork, False otherwise
         """
 
+        dictionary = {"enable": False, "forked": []}
+
         # get (start, end) square of the move
         start_end_move = self.stockfish.start_end_from_san(move_san)
 
@@ -81,11 +83,15 @@ class TechniquesDetector:
 
             if captured_piece in ['K', 'Q', 'R', 'B', 'N']:
                 valuable_pieces_count += 1
+                dictionary['forked'].append(BoardUtils.expand_piece_name(captured_piece))
 
         # undo the move
         self.stockfish.undo()
 
-        return dict({"enable": valuable_pieces_count >= 2})
+        if valuable_pieces_count > 1:
+            dictionary['enable'] = True
+
+        return dictionary
 
     def _is_checkmate(self, move_san):
         """

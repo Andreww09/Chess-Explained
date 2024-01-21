@@ -9,12 +9,13 @@ class OpenAI:
         )
 
     def reword(self, text):
-
         if self.api_key == "":
             return text
 
-        message = ("You are a skilled chess player, reword the following sentence to make it sound more natural and "
-                   "chess-like, such that a beginner chess player can understand why that move is the best: ") + text
+        message = (("You are a skilled chess player, reword the following sentence to make it sound more natural and "
+                    "chess-like, such that a chess player can understand why that move is the best. If the "
+                    "game is won say that probability is 100%, if the game is drawn or stalemate, say the chance in 0. ")
+                   + text)
         chat_completion = self.client.chat.completions.create(
             messages=[
                 {

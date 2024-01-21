@@ -7,6 +7,7 @@ from back.utils import BoardUtils
 
 
 class App(CTk):
+
     def __init__(self, engine_path, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
