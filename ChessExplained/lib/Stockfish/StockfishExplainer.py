@@ -337,8 +337,8 @@ class StockfishExplainer:
         from_square = self.stockfish.board.parse_san(move_san).from_square
         to_square = self.stockfish.board.parse_san(move_san).to_square
 
-        attacker_piece_type = BoardUtils.piece_at_index_str(self.stockfish.board, from_square)
-        attacker_piece = BoardUtils.expand_piece_name(attacker_piece_type)
+        moved_piece_type = BoardUtils.piece_at_index_str(self.stockfish.board, from_square)
+        moved_piece = BoardUtils.expand_piece_name(moved_piece_type)
 
         squares_before_move = self.stockfish.captures_except_square_allowing_duplicates(from_square)
 
@@ -352,12 +352,9 @@ class StockfishExplainer:
         for attacked_square in squares_after_move:
             if squares_after_move.count(attacked_square) > squares_before_move.count(attacked_square):
                 dict['enable'] = True
-                print(attacked_square)
                 attacked_piece_type = self.stockfish.piece_at_san(attacked_square)
-                print(attacked_piece_type)
                 attacked_piece = BoardUtils.expand_piece_name(str(attacked_piece_type))
-                print(attacked_piece)
-                dict['piece'] = [attacker_piece, attacked_piece]
+                dict['piece'] = [moved_piece, attacked_piece]
                 return dict
 
         dict['enable'] = False
