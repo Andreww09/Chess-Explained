@@ -102,8 +102,8 @@ class StockfishExplainer:
         explanation += explainer.build_explanation()
 
         # OpenAI
-        # openai = OpenAI()
-        # explanation = openai.reword(explanation)
+        openai = OpenAI()
+        explanation = openai.reword(explanation)
 
         explanation += f" The {advantage_color} player has the advantage."
         explanation += f" The probability of winning after the move for the current player is {probability}%."
