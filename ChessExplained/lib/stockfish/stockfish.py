@@ -500,19 +500,6 @@ class Stockfish:
 
         return eval_result
 
-    def get_evaluation_score(self, eval_first_item):
-        """
-            Evaluate the current board
-
-           :return: evaluation score
-        """
-        if eval_first_item[0] == 'M':
-            return -100000 if eval_first_item[5] == '-' else 100000
-
-        eval_first_item = eval_first_item[eval_first_item.find('('):]
-        eval_first_item = eval_first_item.strip('()')
-        return int(eval_first_item)
-
     def get_color_eval_score(self, eval_first_item):
         """
             Evaluate the current board

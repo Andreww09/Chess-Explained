@@ -56,6 +56,7 @@ class BoardUtils:
     def piece_at_index_str(board, index):
         return str(board.piece_at(index)).upper()
 
+    @staticmethod
     def expand_piece_name(piece):
         if piece == 'P':
             return 'Pawn'
@@ -71,3 +72,16 @@ class BoardUtils:
             return 'King'
         raise Exception("Invalid Piece Type")
 
+    @staticmethod
+    def get_evaluation_score(eval_first_item):
+        """
+            Evaluate the current board
+
+            :return: evaluation score
+        """
+        if eval_first_item[0] == 'M':
+            return -100000 if eval_first_item[5] == '-' else 100000
+
+        eval_first_item = eval_first_item[eval_first_item.find('('):]
+        eval_first_item = eval_first_item.strip('()')
+        return int(eval_first_item)
