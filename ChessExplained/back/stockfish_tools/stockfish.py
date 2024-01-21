@@ -436,6 +436,11 @@ class Stockfish:
         """
 
         with chess.engine.SimpleEngine.popen_uci(self.engine_path) as engine:
+
+            # check if the game is over
+            if self.board.is_game_over():
+                return None
+
             # get the best move for the current board
             result = engine.play(self.board, chess.engine.Limit(time=time_limit))
 
@@ -464,6 +469,10 @@ class Stockfish:
             for _ in range(num_moves):
                 # get the best move for the current board
                 result = engine.play(temp_board, chess.engine.Limit(time=time_limit))
+
+                # check if the game is over
+                if temp_board.is_game_over():
+                    break
 
                 # convert the move to SAN notation
                 move = temp_board.san(result.move)
@@ -619,11 +628,11 @@ class Stockfish:
 
     def winning_probability(self, score_cp):
         """
-            Compute the winning probability based on the chess engine's score.
+            Compute the winning probability based on the chess engine's score
 
-            :param score_cp: The engine's score in centipawns.
+            :param score_cp: The engine's score in centipawns
             :return: Probability of winning.
-            """
+        """
         coefficient = 0.1
         score_cp /= 100
         if self.get_number_of_pieces() <= 7 and score_cp == 0.00:

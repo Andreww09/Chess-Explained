@@ -9,6 +9,7 @@ from back.OpenAI import OpenAI
 class StockfishExplainer:
     """
     Class used to provide explanations for moves suggested by Stockfish
+
     """
 
     def __init__(self, stockfish):
@@ -36,8 +37,9 @@ class StockfishExplainer:
         :return: Explanation as a string
         """
         best_move = self.stockfish.best_move()
-        explanation = f"The best move is {best_move}. "
         dictionary = {}
+
+        explanation = f"The best move is {best_move}."
 
         # make the move
         self.stockfish.move(best_move)
@@ -49,7 +51,6 @@ class StockfishExplainer:
         # undo the move
         self.stockfish.undo()
 
-        dictionary['pin'] = self._is_pin(best_move)
         is_fork = self._is_fork(best_move)
         dictionary['capture'] = self._is_capture(best_move)
         dictionary['checkmate'] = self._is_checkmate(best_move)
@@ -66,9 +67,10 @@ class StockfishExplainer:
         dictionary['skewer'] = self._is_skewer(best_move)
         dictionary['forced_checkmate'] = self._is_forced_checkmate(best_move)
 
+        dictionary['pin'] = self._is_pin(best_move)
+
         opening = self.openings_detector.get_type(best_move)
 
-        print("is_pin: ", dictionary['pin']['enable'])
         print("is_fork: ", is_fork)
         print("is_checkmate: ", dictionary['checkmate']['enable'])
         print("is_check: ", dictionary['check']['enable'])
@@ -85,39 +87,16 @@ class StockfishExplainer:
         print("is_skewer: ", dictionary['skewer']['enable'])
         print("is_forced_checkmate: ", dictionary['forced_checkmate']['enable'])
 
-        #  EXPLANATIONS
-        """ 
-            in some cases, key 'piece' exists only if 'enable' is True and corresponds to an explicit piece
-            (type of promoted pawn, the piece who delivers checkmates, etc). In other cases, key 'piece' corresponds to
-            a list of pieces(discovered_attack, fork , etc): first piece is always the attacker, followings are attacked 
-            pieces
-            
-            pawn_promotion    : dict['piece']    - piece that the pawn was promoted to
-            
-            discovered_attack : dict['piece'][0] - piece that was moved ; 
-                                dict['piece'][0] - piece that was discovered_attacked 
-            
-            forced_checkmate  : dict['piece']    - piece that was moved
-            
-            check             : dict['piece']    - piece that generated the check
-        """
-
-        if dictionary['castling']['enable']:
-            explanation += f"{dictionary['castling']['side']} castling happens. "
-        if dictionary['pawn_promotion']['enable']:
-            explanation += f"Pawn promoted to {dictionary['pawn_promotion']['piece']}. "
-
-        if dictionary['forced_checkmate']['enable']:
-            explanation += f"{dictionary['forced_checkmate']['piece']} move generated a safe way that follows to win. "
+        print("is_pin: ", dictionary['pin']['enable'])
 
         if opening:
             explanation += f"This move is a book move from the {opening}. "
 
-        print("---------------------------------------------------")
         advantage_color, probability = self._calculate_winning_prob()
-
-        print("Player that has advantage: " + str(advantage_color))
-        print("Winning probability: " + str(probability * 100) + "%")
+        advantage_color = "White" if advantage_color else "Black"
+        probability = round(probability * 100, 2)
+        explanation += f"The {advantage_color} has the advantage."
+        explanation += f"The probability of winning after the move for the player is {probability}%."
 
         explainer = ExplanationBuilder(dictionary)
         explanation += explainer.build_explanation()
@@ -125,6 +104,9 @@ class StockfishExplainer:
         # OpenAI
         openai = OpenAI()
         explanation = openai.reword(explanation)
+
+        explanation += f" The {advantage_color} player has the advantage."
+        explanation += f" The probability of winning after the move for the current player is {probability}%."
 
         return explanation
 
@@ -528,87 +510,88 @@ class StockfishExplainer:
 
     def _is_pin(self, move_san):
         """
-        Determine if the move results in a pin.
+        Determine if the move results in a pin
 
         :param move_san: Move in standard algebraic notation
-        :return: True if the move results in a pin, False otherwise
+        :return: Dictionary with key 'enable' that is True if the move results in a pin, False otherwise
+                and key 'type' that is the type of the pin (absolute or relative)
+                and key 'pinned' that is the piece that is pinned
+                and key 'defended' that is the piece that is defended
         """
-        # Get the square name of the moved piece
+        # get the square name of the moved piece
         moved_square = self.stockfish.start_end_from_san(move_san)[1]
 
-        # Make the move
+        # make the move
         self.stockfish.move(move_san)
 
-        # Get the piece that is moved
+        # get the piece that is moved
         moved_piece = self.stockfish.piece_at_san(moved_square)
 
-        # Check if the moved piece is a pawn, knight or king
+        # check if the moved piece is a pawn, knight or king
         if moved_piece == 'P' or moved_piece == 'N' or moved_piece == 'K':
-            # Undo the move
+            # undo the move
             self.stockfish.undo()
 
-            # Return False if the moved piece is a pawn, knight or king
+            # return False if the moved piece is a pawn, knight or king
             return dict({"enable": False})
 
-        # Get all the pieces that are attacked by the moved piece
+        # get all the pieces that are attacked by the moved piece
         attacked_pieces = set(self.stockfish.captures_by(moved_square))
 
-        # Make backup of board
+        # make backup of board
         board_backup = self.stockfish.board.copy()
 
         for attacked_piece_square in attacked_pieces:
-            # Convert the attacked piece to a chess.Piece object
+            # convert the attacked piece to a chess.Piece object
             attacked_piece = self.stockfish.piece_at_san(attacked_piece_square)
 
-            # Remove the attacked piece from the board
+            # remove the attacked piece from the board
             self.stockfish.board.remove_piece_at(self.stockfish.index_from_san(attacked_piece_square))
 
-            # Get all the pieces that are attacked by the moved piece after the attacked piece is removed
+            # get all the pieces that are attacked by the moved piece after the attacked piece is removed
             attacked_pieces_after = set(self.stockfish.captures_by(moved_square))
 
-            # Add the attacked piece back to the board
+            # add the attacked piece back to the board
             self.stockfish.add_piece_at(chess.Piece(attacked_piece.piece_type, self.stockfish.board.turn),
                                         self.stockfish.index_from_san(attacked_piece_square))
 
-            # Check if another piece is attacked by the moved piece after the attacked piece is removed
+            # check if another piece is attacked by the moved piece after the attacked piece is removed
             if len(attacked_pieces_after) > 0:
-                # Get the other attacked piece from behind the removed attacked piece
+                # get the other attacked piece from behind the removed attacked piece
                 other_attacked_pieces = attacked_pieces_after.difference(attacked_pieces)
 
-                # Get the first other attacked piece
+                # get the first other attacked piece
                 if len(other_attacked_pieces) > 0:
                     other_attacked_piece = other_attacked_pieces.pop()
                 else:
                     continue
 
-                # Convert the other attacked piece to a chess.Piece object
+                # convert the other attacked piece to a chess.Piece object
                 other_attacked_piece = self.stockfish.piece_at_san(other_attacked_piece)
 
-                # Check if there is a pin
+                # check if there is a pin
                 if BoardUtils.is_pin_compatible(moved_piece, attacked_piece, other_attacked_piece):
-                    # Restore the board
+                    # restore the board
                     self.stockfish.board = board_backup
 
-                    # Undo the move
+                    # undo the move
                     self.stockfish.undo()
                     pinned = BoardUtils.expand_piece_name(str(attacked_piece))
                     defended = BoardUtils.expand_piece_name(str(other_attacked_piece))
 
-                    # Return absolute or relative pin
+                    # return absolute or relative pin
                     if attacked_piece.piece_type == 6:
-                        # Return absolute pin if the attacked piece is a king
+                        # return absolute pin if the attacked piece is a king
                         return dict({"enable": True, "type": "absolute", "pinned": pinned, "defended": defended})
                     else:
-                        # Return relative pin if the attacked piece is not a king
+                        # return relative pin if the attacked piece is not a king
                         return dict({"enable": True, "type": "relative", "pinned": pinned, "defended": defended})
 
-        # Restore the board
+        # restore the board
         self.stockfish.board = board_backup
 
-        # Undo the move
+        # undo the move
         self.stockfish.undo()
 
-        # Return False if there is no pin
+        # return False if there is no pin
         return dict({"enable": False})
-
-
