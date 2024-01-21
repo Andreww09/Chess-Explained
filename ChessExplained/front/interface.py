@@ -1,3 +1,4 @@
+import customtkinter
 from customtkinter import *
 from PIL import ImageTk, Image
 from chatterbot import ChatBot
@@ -26,7 +27,7 @@ class App(CTk):
                                ]
                                )
 
-        self.img = ImageTk.PhotoImage(Image.open("assets/label.png"))
+        self.img = ImageTk.PhotoImage(Image.open("front/assets/label.png"))
         self.label = CTkLabel(master=self, width=680, height=90, image=self.img, text="")
         self.label.place(x=10, y=10)
 
@@ -46,6 +47,10 @@ class App(CTk):
         self.textBox = CTkTextbox(master=self, width=680, height=550)
         self.textBox.place(x=10, y=110)
         self.textBox.configure(state=DISABLED)
+
+        # Set the theme
+        set_appearance_mode("dark")
+        customtkinter.set_default_color_theme("dark-blue")
 
         self.mainloop()
 

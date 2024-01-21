@@ -1,5 +1,6 @@
 from back.stockfish_tools import Stockfish
 from back.stockfish_tools import StockfishExplainer
+from front import App
 
 engine_path = "./stockfish/stockfish-windows-x86-64-modern.exe"
 # engine_path = "../stockfish/stockfish-windows-x86-64-avx.exe"
@@ -11,6 +12,8 @@ stockfish.setup(new_game)
 
 stockfish_explainer = StockfishExplainer(stockfish)
 print(stockfish_explainer.explain())
+
+App(engine_path=engine_path)
 
 # # example of usage
 # new_game = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
