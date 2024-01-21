@@ -85,3 +85,40 @@ class BoardUtils:
         eval_first_item = eval_first_item[eval_first_item.find('('):]
         eval_first_item = eval_first_item.strip('()')
         return int(eval_first_item)
+
+    @staticmethod
+    def is_valid_fen(fen_str):
+        # Split the FEN string into its components
+        fen_parts = fen_str.split()
+
+        # Check if there are exactly 6 parts
+        if len(fen_parts) != 6:
+            return False
+
+        # Check the first field (piece placement)
+        if not all(ch in 'rnbqkpRNBQKP/' or ch.isdigit() for ch in fen_parts[0]):
+            return False
+
+        # Check the second field (active color)
+        if fen_parts[1] not in {'w', 'b'}:
+            return False
+
+        # Check the third field (castling availability)
+        if not all(ch in '-KkQq' for ch in fen_parts[2]):
+            return False
+
+        # Check the fourth field (en passant target square)
+        if not (fen_parts[3] == '-' or (
+                len(fen_parts[3]) == 2 and fen_parts[3][0] in 'abcdefgh' and fen_parts[3][1] in '12345678')):
+            return False
+
+        # Check the fifth field (halfmove clock)
+        if not fen_parts[4].isdigit():
+            return False
+
+        # Check the sixth field (fullmove number)
+        if not fen_parts[5].isdigit():
+            return False
+
+        # If all checks pass, the FEN string is valid
+        return True
