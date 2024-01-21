@@ -49,7 +49,7 @@ class StockfishExplainer:
         # undo the move
         self.stockfish.undo()
 
-        is_pin = self._is_pin(best_move)
+        dictionary['pin'] = self._is_pin(best_move)
         is_fork = self._is_fork(best_move)
         dictionary['capture'] = self._is_capture(best_move)
         dictionary['checkmate'] = self._is_checkmate(best_move)
@@ -58,17 +58,17 @@ class StockfishExplainer:
         dictionary['en_passant'] = self._is_en_passant(best_move)
         dictionary['stalemate'] = self._is_stalemate(best_move)
         dictionary['insufficient_material'] = self._is_insufficient_material(best_move)
-        is_battery = self._is_battery(best_move)
+        dictionary['battery'] = self._is_battery(best_move)
         dictionary['sacrifice'] = self._is_sacrifice(best_move)
         dictionary['discovered_attack'] = self._is_a_discovered_attack(best_move)
         dictionary['castling'] = self._is_a_castling(best_move)
         dictionary['pawn_promotion'] = self._is_pawn_promotion(best_move)
-        is_skewer = self._is_skewer(best_move)
+        dictionary['skewer'] = self._is_skewer(best_move)
         dictionary['forced_checkmate'] = self._is_forced_checkmate(best_move)
 
         opening = self.openings_detector.get_type(best_move)
 
-        print("is_pin: ", is_pin)
+        print("is_pin: ", dictionary['pin']['enable'])
         print("is_fork: ", is_fork)
         print("is_checkmate: ", dictionary['checkmate']['enable'])
         print("is_check: ", dictionary['check']['enable'])
@@ -77,12 +77,12 @@ class StockfishExplainer:
         print("is_en_passant: ", dictionary['en_passant']['enable'])
         print("is_stalemate: ", dictionary['stalemate']['enable'])
         print("is_insufficient_material: ", dictionary['insufficient_material']['enable'])
-        print("is_battery: ", is_battery)
+        print("is_battery: ", dictionary['battery']['enable'])
         print("is_sacrifice: ", dictionary['sacrifice']['enable'])
         print("is_discovered_attack: ", dictionary['discovered_attack']['enable'])
         print("is_castling: ", dictionary['castling']['enable'])
         print("is_pawn_promotion: ", dictionary['pawn_promotion']['enable'])
-        print("is_skewer: ", is_skewer)
+        print("is_skewer: ", dictionary['skewer']['enable'])
         print("is_forced_checkmate: ", dictionary['forced_checkmate']['enable'])
 
         #  EXPLANATIONS
@@ -106,9 +106,7 @@ class StockfishExplainer:
             explanation += f"{dictionary['castling']['side']} castling happens. "
         if dictionary['pawn_promotion']['enable']:
             explanation += f"Pawn promoted to {dictionary['pawn_promotion']['piece']}. "
-        if dictionary['discovered_attack']['enable']:
-            explanation += (f"{dictionary['discovered_attack']['piece'][0]} moved and facilitates "
-                            f"a discovered attack to {dictionary['discovered_attack']['piece'][1]}. ")
+
         if dictionary['forced_checkmate']['enable']:
             explanation += f"{dictionary['forced_checkmate']['piece']} move generated a safe way that follows to win. "
 
@@ -244,12 +242,16 @@ class StockfishExplainer:
             # Check if the attacker piece attacks on the same direction as the moved piece
             if BoardUtils.is_battery_compatible(move_piece, attacker_piece):
                 is_battery = True
+                move_piece = BoardUtils.expand_piece_name(str(move_piece))
+                attacker_piece = BoardUtils.expand_piece_name(str(attacker_piece))
                 break
 
         # Undo the move
         self.stockfish.undo()
 
-        return is_battery
+        if is_battery:
+            return dict({"enable": is_battery, "moved": move_piece, "attacker": attacker_piece})
+        return dict({"enable": is_battery})
 
     def _is_sacrifice(self, move_san):
 
@@ -399,6 +401,7 @@ class StockfishExplainer:
 
     def _is_skewer(self, move_san):
 
+        enable = False
         start_end_move = self.stockfish.start_end_from_san(move_san)
 
         # index of best move
@@ -414,7 +417,7 @@ class StockfishExplainer:
 
         if len(best_moves) < 2:
             self.stockfish.undo()
-            return False
+            return dict({"enable": enable})
 
         # indexes for the starting and ending position of the first move in the sequence
         start_first_move, end_first_move = self.stockfish.start_end_from_san(best_moves[0])
@@ -434,27 +437,34 @@ class StockfishExplainer:
         start_second_move = self.stockfish.index_from_san(start_second_move)
         end_second_move = self.stockfish.index_from_san(end_second_move)
 
+        captured_piece = BoardUtils.piece_at_index_str(self.stockfish.board, end_second_move)
+
         # undo the moves
         self.stockfish.undo()
         self.stockfish.undo()
 
         # a skewer requires to attack a higher value piece
         if self.piece_value[attacking_piece] >= self.piece_value[attacked_piece]:
-            return False
+            return dict({"enable": enable})
 
         # the opponent move must move an attacked piece to be a skewer
         if start_first_move not in previously_attacked_pieces:
-            return False
+            return dict({"enable": enable})
 
         # the opponent must take the higher piece to safety
         if end_first_move in attacked_pieces:
-            return False
+            return dict({"enable": enable})
 
         # the attacking piece must capture a piece in the next move that was defended previously
         if start_second_move == index and end_second_move not in previously_attacked_pieces and "x" in best_moves[1]:
-            return True
+            enable = True
+            attacking_piece = BoardUtils.expand_piece_name(attacking_piece)
+            attacked_piece = BoardUtils.expand_piece_name(attacked_piece)
+            captured_piece = BoardUtils.expand_piece_name(captured_piece)
+            return dict(
+                {"enable": enable, "attacker": attacking_piece, "captured": captured_piece, "attacked": attacked_piece})
 
-        return False
+        return dict({"enable": enable})
 
     def _is_forced_checkmate(self, move_san):
 
@@ -581,14 +591,16 @@ class StockfishExplainer:
 
                     # Undo the move
                     self.stockfish.undo()
+                    pinned = BoardUtils.expand_piece_name(str(attacked_piece))
+                    defended = BoardUtils.expand_piece_name(str(other_attacked_piece))
 
                     # Return absolute or relative pin
                     if attacked_piece.piece_type == 6:
                         # Return absolute pin if the attacked piece is a king
-                        return dict({"enable": True, "type": "absolute"})
+                        return dict({"enable": True, "type": "absolute", "pinned": pinned, "defended": defended})
                     else:
                         # Return relative pin if the attacked piece is not a king
-                        return dict({"enable": True, "type": "relative"})
+                        return dict({"enable": True, "type": "relative", "pinned": pinned, "defended": defended})
 
         # Restore the board
         self.stockfish.board = board_backup
@@ -597,4 +609,6 @@ class StockfishExplainer:
         self.stockfish.undo()
 
         # Return False if there is no pin
-        return False
+        return dict({"enable": False})
+
+
