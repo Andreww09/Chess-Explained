@@ -52,7 +52,8 @@ class StockfishExplainer:
         is_fork = self._is_fork(best_move)
         is_capture = self.stockfish.is_capture(best_move)
         dictionary['checkmate'] = self._is_checkmate(best_move)
-        is_check = self._is_check(best_move)
+        dictionary['check'] = self._is_check(best_move)
+        dictionary['check_forced'] = self._is_move_check_forced()
         is_en_passant = self.stockfish.is_en_passant(best_move)
         is_stalemate = self._is_stalemate(best_move)
         is_insufficient_material = self._is_insufficient_material(best_move)
@@ -62,15 +63,15 @@ class StockfishExplainer:
         dictionary['castling'] = self._is_a_castling(best_move)
         dictionary['pawn_promotion'] = self._is_pawn_promotion(best_move)
         is_skewer = self._is_skewer(best_move)
-        is_forced_checkmate = self._is_forced_checkmate(best_move)
+        dictionary['forced_checkmate'] = self._is_forced_checkmate(best_move)
 
         opening = self.openings_detector.get_type(best_move)
 
         print("is_pin: ", is_pin)
         print("is_fork: ", is_fork)
         print("is_checkmate: ", dictionary['checkmate']['enable'])
-        print("is_check: ", is_check)
-        print("is_check_forced: ", self._is_move_check_forced())
+        print("is_check: ", dictionary['check']['enable'])
+        print("is_check_forced: ", dictionary['check_forced']['enable'])
         print("is_capture: ", is_capture)
         print("is_en_passant: ", is_en_passant)
         print("is_stalemate: ", is_stalemate)
@@ -81,13 +82,23 @@ class StockfishExplainer:
         print("is_castling: ", dictionary['castling']['enable'])
         print("is_pawn_promotion: ", dictionary['pawn_promotion']['enable'])
         print("is_skewer: ", is_skewer)
-        print("is_forced_checkmate: ", is_forced_checkmate)
+        print("is_forced_checkmate: ", dictionary['forced_checkmate']['enable'])
 
         #  EXPLANATIONS
         """ 
-            in some cases, key 'piece' corresponds to an explicit piece(type of promoted pawn,
-            the piece who delivers checkmates, etc). In other cases, key 'piece' corresponds to a list of 
-            pieces(discovered_attack, fork , etc): first piece is always the attacker, followings are attacked pieces 
+            in some cases, key 'piece' exists only if 'enable' is True and corresponds to an explicit piece
+            (type of promoted pawn, the piece who delivers checkmates, etc). In other cases, key 'piece' corresponds to
+            a list of pieces(discovered_attack, fork , etc): first piece is always the attacker, followings are attacked 
+            pieces
+            
+            pawn_promotion    : dict['piece']    - piece that the pawn was promoted to
+            
+            discovered_attack : dict['piece'][0] - piece that was moved ; 
+                                dict['piece'][0] - piece that was discovered_attacked 
+            
+            forced_checkmate  : dict['piece']    - piece that was moved
+            
+            check             : dict['piece']    - piece that generated the check
         """
 
         if dictionary['checkmate']['enable']:
@@ -98,7 +109,13 @@ class StockfishExplainer:
             explanation += f"Pawn promoted to {dictionary['pawn_promotion']['piece']}. "
         if dictionary['discovered_attack']['enable']:
             explanation += (f"{dictionary['discovered_attack']['piece'][0]} moved and facilitates "
-                            f"a discovered attack to {dictionary['discovered_attack']['piece'][1]}")
+                            f"a discovered attack to {dictionary['discovered_attack']['piece'][1]}. ")
+        if dictionary['forced_checkmate']['enable']:
+            explanation += f"{dictionary['forced_checkmate']['piece']} move generated a safe way that follows to win. "
+        if dictionary['check_forced']['enable']:
+            explanation += "Move generated in order to escape from check. "
+        if dictionary['check']['enable']:
+            explanation += f"{dictionary['check']['piece']} move generated a check. "
 
         if opening:
             explanation += f"This move is a book move from the {opening}. "
@@ -316,6 +333,7 @@ class StockfishExplainer:
             if squares_after_move.count(attacked_square) > squares_before_move.count(attacked_square):
                 dictionary['enable'] = True
                 attacked_piece_type = self.stockfish.piece_at_san(attacked_square)
+                print(attacked_piece_type)
                 attacked_piece = BoardUtils.expand_piece_name(str(attacked_piece_type))
                 dictionary['piece'] = [moved_piece, attacked_piece]
                 return dictionary
@@ -416,11 +434,18 @@ class StockfishExplainer:
         return False
 
     def _is_forced_checkmate(self, move_san):
+
+        start_end_move = self.stockfish.start_end_from_san(move_san)
+        start_index = self.stockfish.index_from_san(start_end_move[0])
+        start_piece = BoardUtils.piece_at_index_str(self.stockfish.board, start_index)
+        piece = BoardUtils.expand_piece_name(start_piece)
         self.stockfish.move(move_san)
         eval_first_item = self.stockfish.first_item_evaluation()
         self.stockfish.undo()
 
-        return eval_first_item[0] == 'M'
+        if eval_first_item[0] == 'M':
+            return dict({"enable": True, "piece": piece})
+        return dict({"enable": False})
 
     def _calculate_winning_prob(self):
         eval_first_item = self.stockfish.first_item_evaluation()
@@ -444,11 +469,17 @@ class StockfishExplainer:
         :return: True if the move results in a check, False otherwise
         """
 
+        start_end_move = self.stockfish.start_end_from_san(move_san)
+        index = self.stockfish.index_from_san(start_end_move[0])
+        piece_type = BoardUtils.piece_at_index_str(self.stockfish.board, index)
+        piece = BoardUtils.expand_piece_name(piece_type)
         self.stockfish.move(move_san)
         is_check = self.stockfish.board.is_check()
         self.stockfish.undo()
-
-        return is_check
+        if is_check:
+            return dict({"enable": is_check, "piece": piece})
+        else:
+            return dict({"enable": is_check})
 
     def _is_move_check_forced(self):
         """
@@ -460,7 +491,9 @@ class StockfishExplainer:
         is_check = self.stockfish.board.is_check()
         is_checkmate = self.stockfish.board.is_checkmate()
 
-        return is_check and not is_checkmate
+        if is_check and not is_checkmate:
+            return dict({"enable": True})
+        return dict({"enable": False})
 
     def _is_pin(self, move_san):
         """

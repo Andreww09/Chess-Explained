@@ -58,17 +58,17 @@ class BoardUtils:
 
     @staticmethod
     def expand_piece_name(piece):
-        if piece == 'P':
+        if piece == 'P' or piece == 'p':
             return 'Pawn'
-        elif piece == 'N':
+        elif piece == 'N' or piece == 'n':
             return 'Knight'
-        elif piece == 'B':
+        elif piece == 'B' or piece == 'b':
             return 'Bishop'
-        elif piece == 'R':
+        elif piece == 'R' or piece == 'r':
             return 'Rook'
-        elif piece == 'Q':
+        elif piece == 'Q' or piece == 'q':
             return 'Queen'
-        elif piece == 'K':
+        elif piece == 'K' or piece == 'k':
             return 'King'
         raise Exception("Invalid Piece Type")
 
