@@ -5,7 +5,6 @@ import back.stockfish_tools as sf
 
 
 class App(CTk):
-
     def __init__(self, engine_path, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
@@ -14,19 +13,19 @@ class App(CTk):
         self.geometry("700x800")
         self.resizable(False, False)
         self.chatbot = ChatBot("back",
-                          preprocessors=['chatterbot.preprocessors.convert_to_ascii',
-                                         'chatterbot.preprocessors.unescape_html',
-                                         'chatterbot.preprocessors.clean_whitespace'],
-                          logic_adapters=[
-                              {
-                                  'import_path': 'chatterbot.logic.BestMatch',
-                                  'default_response': 'Sorry, I am unable to process your request.',
-                                  'maximum_similarity_threshold': 0.90
-                              }
-                          ]
-                          )
+                               preprocessors=['chatterbot.preprocessors.convert_to_ascii',
+                                              'chatterbot.preprocessors.unescape_html',
+                                              'chatterbot.preprocessors.clean_whitespace'],
+                               logic_adapters=[
+                                   {
+                                       'import_path': 'chatterbot.logic.BestMatch',
+                                       'default_response': 'Sorry, I am unable to process your request.',
+                                       'maximum_similarity_threshold': 0.90
+                                   }
+                               ]
+                               )
 
-        self.img = ImageTk.PhotoImage(Image.open(".\label.png"))
+        self.img = ImageTk.PhotoImage(Image.open("label.png"))
         self.label = CTkLabel(master=self, width=680, height=90, image=self.img, text="")
         self.label.place(x=10, y=10)
 
@@ -34,7 +33,8 @@ class App(CTk):
         self.entryBox.place(x=10, y=690)
         self.entryBox.focus()
 
-        self.button1 = CTkButton(master=self, width=75, height=45, text="Send", command=lambda: self._on_enter_pressed())
+        self.button1 = CTkButton(master=self, width=75, height=45, text="Send",
+                                 command=lambda: self._on_enter_pressed())
         self.button1.place(x=615, y=690)
 
         self.button2 = CTkButton(master=self, width=75, height=45, text="Best Move", command=lambda: self.input())
@@ -98,7 +98,8 @@ class App(CTk):
         self.textBox.insert(END, "\n\n")
         self.textBox.configure(state=DISABLED)
 
-    def _is_valid_fen(self, fen_str):
+    @staticmethod
+    def _is_valid_fen(fen_str):
         # Split the FEN string into its components
         fen_parts = fen_str.split()
 
