@@ -760,7 +760,7 @@ class StockfishExplainer:
             self.stockfish.undo()
 
             # Return False if the moved piece is a pawn, knight or king
-            return False
+            return dict({"enable": False})
 
         # Get all the pieces that are attacked by the moved piece
         attacked_pieces = set(self.stockfish.captures_by(moved_square))
@@ -804,8 +804,13 @@ class StockfishExplainer:
                     # Undo the move
                     self.stockfish.undo()
 
-                    # Return True if there is a pin
-                    return True
+                    # Return absolute or relative pin
+                    if attacked_piece.piece_type == 6:
+                        # Return absolute pin if the attacked piece is a king
+                        return dict({"enable": True, "type": "absolute"})
+                    else:
+                        # Return relative pin if the attacked piece is not a king
+                        return dict({"enable": True, "type": "relative"})
 
         # Restore the board
         self.stockfish.board = board_backup
