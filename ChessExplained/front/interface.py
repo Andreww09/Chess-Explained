@@ -1,6 +1,6 @@
 from customtkinter import *
 from PIL import ImageTk, Image
-from chatterbot import ChatBot
+# from chatterbot import ChatBot
 import back.stockfish_tools as sf
 
 
@@ -13,18 +13,18 @@ class App(CTk):
         self.title("Chess Explained")
         self.geometry("700x800")
         self.resizable(False, False)
-        self.chatbot = ChatBot("back",
-                          preprocessors=['chatterbot.preprocessors.convert_to_ascii',
-                                         'chatterbot.preprocessors.unescape_html',
-                                         'chatterbot.preprocessors.clean_whitespace'],
-                          logic_adapters=[
-                              {
-                                  'import_path': 'chatterbot.logic.BestMatch',
-                                  'default_response': 'Sorry, I am unable to process your request.',
-                                  'maximum_similarity_threshold': 0.90
-                              }
-                          ]
-                          )
+        # self.chatbot = ChatBot("back",
+        #                   preprocessors=['chatterbot.preprocessors.convert_to_ascii',
+        #                                  'chatterbot.preprocessors.unescape_html',
+        #                                  'chatterbot.preprocessors.clean_whitespace'],
+        #                   logic_adapters=[
+        #                       {
+        #                           'import_path': 'chatterbot.logic.BestMatch',
+        #                           'default_response': 'Sorry, I am unable to process your request.',
+        #                           'maximum_similarity_threshold': 0.90
+        #                       }
+        #                   ]
+        #                   )
 
         self.img = ImageTk.PhotoImage(Image.open(".\label.png"))
         self.label = CTkLabel(master=self, width=680, height=90, image=self.img, text="")
@@ -133,3 +133,5 @@ class App(CTk):
 
         # If all checks pass, the FEN string is valid
         return True
+
+x = App(engine_path="../stockfish/stockfish-windows-x86-64-modern.exe")

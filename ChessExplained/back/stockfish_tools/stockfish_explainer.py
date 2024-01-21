@@ -38,6 +38,7 @@ class StockfishExplainer:
         """
         if self.stockfish.board.outcome():
             return "The game is already over!"
+
         best_move = self.stockfish.best_move()
         dictionary = {}
 
@@ -53,7 +54,6 @@ class StockfishExplainer:
         # undo the move
         self.stockfish.undo()
 
-        is_fork = self._is_fork(best_move)
         dictionary['capture'] = self._is_capture(best_move)
         dictionary['checkmate'] = self._is_checkmate(best_move)
         dictionary['check'] = self._is_check(best_move)
@@ -62,19 +62,19 @@ class StockfishExplainer:
         dictionary['stalemate'] = self._is_stalemate(best_move)
         dictionary['insufficient_material'] = self._is_insufficient_material(best_move)
         dictionary['battery'] = self._is_battery(best_move)
-        dictionary['sacrifice'] = self._is_sacrifice(best_move)
-        dictionary['discovered_attack'] = self._is_a_discovered_attack(best_move)
         dictionary['castling'] = self._is_a_castling(best_move)
+        dictionary['sacrifice'] = self._is_sacrifice(best_move)
         dictionary['pawn_promotion'] = self._is_pawn_promotion(best_move)
-        dictionary['skewer'] = self._is_skewer(best_move)
+        dictionary['discovered_attack'] = self._is_a_discovered_attack(best_move)
         dictionary['forced_checkmate'] = self._is_forced_checkmate(best_move)
-
+        dictionary['skewer'] = self._is_skewer(best_move)
+        dictionary['fork'] = self._is_fork(best_move)
         dictionary['pin'] = self._is_pin(best_move)
 
         opening = self.openings_detector.get_type(best_move)
 
-        print("is_fork: ", is_fork)
         print("is_checkmate: ", dictionary['checkmate']['enable'])
+        print("is_forced_checkmate: ", dictionary['forced_checkmate']['enable'])
         print("is_check: ", dictionary['check']['enable'])
         print("is_check_forced: ", dictionary['check_forced']['enable'])
         print("is_capture: ", dictionary['capture']['enable'])
@@ -83,12 +83,11 @@ class StockfishExplainer:
         print("is_insufficient_material: ", dictionary['insufficient_material']['enable'])
         print("is_battery: ", dictionary['battery']['enable'])
         print("is_sacrifice: ", dictionary['sacrifice']['enable'])
-        print("is_discovered_attack: ", dictionary['discovered_attack']['enable'])
         print("is_castling: ", dictionary['castling']['enable'])
         print("is_pawn_promotion: ", dictionary['pawn_promotion']['enable'])
+        print("is_discovered_attack: ", dictionary['discovered_attack']['enable'])
         print("is_skewer: ", dictionary['skewer']['enable'])
-        print("is_forced_checkmate: ", dictionary['forced_checkmate']['enable'])
-
+        print("is_fork: ", dictionary['fork']['enable'])
         print("is_pin: ", dictionary['pin']['enable'])
 
         if opening:
@@ -96,25 +95,30 @@ class StockfishExplainer:
 
         advantage_color, probability = self._calculate_winning_prob()
         advantage_color = "White" if advantage_color else "Black"
+
+        if dictionary['checkmate']['enable']:
+            probability = 1
+        elif dictionary['stalemate']['enable'] or dictionary['insufficient_material']['enable']:
+            probability = 0
+
         probability = round(probability * 100, 2)
-        explanation += f"The {advantage_color} has the advantage."
-        explanation += f"The probability of winning after the move for the player is {probability}%."
+        explanation += f"The {advantage_color} has the advantage currently."
+        explanation += f"The probability of winning after the move for the current player is {probability}%."
 
         explainer = ExplanationBuilder(dictionary)
         explanation += explainer.build_explanation()
+
+        print(explanation)
 
         # OpenAI
         openai = OpenAI()
         explanation = openai.reword(explanation)
 
-        explanation += f" The {advantage_color} player has the advantage."
-        explanation += f" The probability of winning after the move for the current player is {probability}%."
-
         return explanation
 
     def _is_capture(self, move_san):
         """
-        Determine if the move results in a capture.
+        Determine if the move results in a capture
 
         :param move_san: Move in standard algebraic notation
         :return: Dictionary with key 'enable' that is True if the move results in a capture, False otherwise
@@ -142,12 +146,16 @@ class StockfishExplainer:
         :return: True if the move results in a fork, False otherwise
         """
 
+        dictionary = {"enable": False}
+
         # get (start, end) square of the move
         start_end_move = self.stockfish.start_end_from_san(move_san)
 
         # check that piece is not a pawn
         if self.stockfish.piece_at_san(start_end_move[0]) == 'P':
             return False
+
+        dictionary["forked"] = []
 
         # initialize the valuable pieces count
         valuable_pieces_count = 0
@@ -165,11 +173,15 @@ class StockfishExplainer:
 
             if captured_piece in ['K', 'Q', 'R', 'B', 'N']:
                 valuable_pieces_count += 1
+                dictionary["forked"].append(BoardUtils.expand_piece_name(captured_piece))
 
         # undo the move
         self.stockfish.undo()
 
-        return valuable_pieces_count >= 2
+        if valuable_pieces_count >= 2:
+            dictionary["enable"] = True
+
+        return dictionary
 
     def _is_checkmate(self, move_san):
         """
@@ -198,20 +210,20 @@ class StockfishExplainer:
 
     def _is_battery(self, move_san):
         """
-        Determine if the move results in a battery.
+        Determine if the move results in a battery
 
         :param move_san: Move in standard algebraic notation
         :return: True if the move results in a battery, False otherwise
         """
-        # Get the index of the moved piece
+        # get the index of the moved piece
         move_index = chess.parse_square(self.stockfish.start_end_from_san(move_san)[1])
 
         self.stockfish.move(move_san)
 
-        # Get the moved piece
+        # get the moved piece
         move_piece = self.stockfish.board.piece_at(move_index)
 
-        # Get the pieces that are attacking the moved piece (the same color as the moved piece)
+        # get the pieces that are attacking the moved piece (the same color as the moved piece)
         self.stockfish.switch_turn()
         attackers = BoardUtils.get_attackers_at_square(self.stockfish.board, move_index)
         self.stockfish.switch_turn()
@@ -220,19 +232,19 @@ class StockfishExplainer:
 
         attacker_piece = None
 
-        # Check if there is a battery
+        # check if there is a battery
         for attacker in attackers:
-            # Get the piece that is attacking the moved piece
+            # cet the piece that is attacking the moved piece
             attacker_piece = self.stockfish.board.piece_at(attacker)
 
-            # Check if the attacker piece attacks on the same direction as the moved piece
+            # check if the attacker piece attacks on the same direction as the moved piece
             if BoardUtils.is_battery_compatible(move_piece, attacker_piece):
                 is_battery = True
                 move_piece = BoardUtils.expand_piece_name(str(move_piece))
                 attacker_piece = BoardUtils.expand_piece_name(str(attacker_piece))
                 break
 
-        # Undo the move
+        # undo the move
         self.stockfish.undo()
 
         if is_battery:
@@ -476,7 +488,7 @@ class StockfishExplainer:
 
     def _is_check(self, move_san):
         """
-        Determine if the move results in a check.
+        Determine if the move results in a check
 
         :param move_san: Move in standard algebraic notation
         :return: Dictionary with key 'enable' that is True if the move results in a check, False otherwise
