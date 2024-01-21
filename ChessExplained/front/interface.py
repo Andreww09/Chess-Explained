@@ -26,7 +26,7 @@ class App(CTk):
                                ]
                                )
 
-        self.img = ImageTk.PhotoImage(Image.open("label.png"))
+        self.img = ImageTk.PhotoImage(Image.open("assets/label.png"))
         self.label = CTkLabel(master=self, width=680, height=90, image=self.img, text="")
         self.label.place(x=10, y=10)
 

@@ -2,7 +2,10 @@
 tema1/db.sqlite3
 venv
 ChessExplained/stockfish
-lib/Stockfish/__pycache__/
-lib/utils/__pycache__/
-lib/__pycache__/
+back/Stockfish/__pycache__/
+back/utils/__pycache__/
+back/__pycache__/
+back/detectors/__pycache__/
+back/stockfish_tools/__pycache__/
+back/OpenAI/__pycache__/
 ChessExplained/back/utils/__pycache__/
