@@ -1,6 +1,6 @@
 from lib.utils import BoardUtils
 from lib.stockfish_tools import OpeningsDetector
-
+from lib.stockfish_tools.explanation_builder import ExplanationBuilder
 import chess
 import chess.engine
 
@@ -57,7 +57,7 @@ class StockfishExplainer:
         is_stalemate = self._is_stalemate(best_move)
         is_insufficient_material = self._is_insufficient_material(best_move)
         is_battery = self._is_battery(best_move)
-        is_sacrifice = self._is_sacrifice(best_move)
+        dictionary['sacrifice'] = self._is_sacrifice(best_move)
         dictionary['discovered_attack'] = self._is_a_discovered_attack(best_move)
         dictionary['castling'] = self._is_a_castling(best_move)
         dictionary['pawn_promotion'] = self._is_pawn_promotion(best_move)
@@ -76,7 +76,7 @@ class StockfishExplainer:
         print("is_stalemate: ", is_stalemate)
         print("is_insufficient_material: ", is_insufficient_material)
         print("is_battery: ", is_battery)
-        print("is_sacrifice: ", is_sacrifice)
+        print("is_sacrifice: ", dictionary['sacrifice']['enable'])
         print("is_discovered_attack: ", dictionary['discovered_attack']['enable'])
         print("is_castling: ", dictionary['castling']['enable'])
         print("is_pawn_promotion: ", dictionary['pawn_promotion']['enable'])
@@ -108,6 +108,9 @@ class StockfishExplainer:
 
         print("Player that has advantage: " + str(advantage_color))
         print("Winning probability: " + str(probability * 100) + "%")
+
+        explainer = ExplanationBuilder(dictionary)
+        explanation += explainer.build_explanation()
 
         return explanation
 
@@ -211,6 +214,8 @@ class StockfishExplainer:
 
     def _is_sacrifice(self, move_san):
 
+        enable = False
+        capture = False
         start_end_move = self.stockfish.start_end_from_san(move_san)
 
         # type of the piece that was captured
@@ -231,21 +236,33 @@ class StockfishExplainer:
         # the piece was moved to a square that is under attack and there are no protectors
         if old_piece is None:
             if len(attackers) > 0 and len(protectors) == 0:
-                return True
+                enable = True
+
             else:
                 # the piece is protected but is attacked and can be taken by a weaker piece
                 for attacker in attackers:
                     piece = BoardUtils.piece_at_index_str(self.stockfish.board, attacker)
                     if self.piece_value[piece] < self.piece_value[new_piece]:
-                        return True
-                return False
+                        enable = True
+                if enable:
+                    new_piece = BoardUtils.expand_piece_name(new_piece)
+                    return dict({"enable": enable, "capture": capture, "sacrificed": new_piece})
+                else:
+                    return dict({"enable": enable})
+
+        capture = True
         old_piece = str(old_piece).upper()
 
         # the piece was traded for a lower value piece
         if self.piece_value[old_piece] < self.piece_value[new_piece]:
-            return True
+            enable = True
 
-        return False
+        if enable:
+            old_piece = BoardUtils.expand_piece_name(old_piece)
+            new_piece = BoardUtils.expand_piece_name(new_piece)
+            return dict({"enable": enable, "capture": capture, "captured": old_piece, "sacrificed": new_piece})
+
+        return dict({"enable": enable})
 
     def _is_stalemate(self, move_san):
         """
