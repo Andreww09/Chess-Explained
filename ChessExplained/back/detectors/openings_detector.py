@@ -2,7 +2,7 @@ class OpeningsDetector:
     def __init__(self, stockfish):
         self.stockfish = stockfish
 
-    def get_type(self, move_san):
+    def get_opening(self, move_san):
         opening = None
 
         if self._is_sicilian_defense(move_san):
