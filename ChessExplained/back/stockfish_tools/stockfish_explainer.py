@@ -13,7 +13,7 @@ class StockfishExplainer:
 
     def __init__(self, stockfish):
         """
-        Constructor for StockfishExplainer class.
+        Constructor for StockfishExplainer class
 
         :param stockfish: Instance of Stockfish class
         """
@@ -31,7 +31,7 @@ class StockfishExplainer:
 
     def explain(self):
         """
-        Explain the next best move.
+        Explain the next best move
 
         :return: Explanation as a string
         """
@@ -39,25 +39,25 @@ class StockfishExplainer:
         explanation = f"The best move is {best_move}. "
         dictionary = {}
 
-        # Make the move
+        # make the move
         self.stockfish.move(best_move)
 
         # print board
-        print("Current board: ")
+        print("Board after move: ")
         self.stockfish.display()
 
-        # Undo the move
+        # undo the move
         self.stockfish.undo()
 
         is_pin = self._is_pin(best_move)
         is_fork = self._is_fork(best_move)
-        is_capture = self.stockfish.is_capture(best_move)
+        dictionary['capture'] = self._is_capture(best_move)
         dictionary['checkmate'] = self._is_checkmate(best_move)
         dictionary['check'] = self._is_check(best_move)
-        dictionary['check_forced'] = self._is_move_check_forced()
-        is_en_passant = self.stockfish.is_en_passant(best_move)
-        is_stalemate = self._is_stalemate(best_move)
-        is_insufficient_material = self._is_insufficient_material(best_move)
+        dictionary['check_forced'] = self._is_move_check_forced(best_move)
+        dictionary['en_passant'] = self._is_en_passant(best_move)
+        dictionary['stalemate'] = self._is_stalemate(best_move)
+        dictionary['insufficient_material'] = self._is_insufficient_material(best_move)
         is_battery = self._is_battery(best_move)
         dictionary['sacrifice'] = self._is_sacrifice(best_move)
         dictionary['discovered_attack'] = self._is_a_discovered_attack(best_move)
@@ -73,10 +73,10 @@ class StockfishExplainer:
         print("is_checkmate: ", dictionary['checkmate']['enable'])
         print("is_check: ", dictionary['check']['enable'])
         print("is_check_forced: ", dictionary['check_forced']['enable'])
-        print("is_capture: ", is_capture)
-        print("is_en_passant: ", is_en_passant)
-        print("is_stalemate: ", is_stalemate)
-        print("is_insufficient_material: ", is_insufficient_material)
+        print("is_capture: ", dictionary['capture']['enable'])
+        print("is_en_passant: ", dictionary['en_passant']['enable'])
+        print("is_stalemate: ", dictionary['stalemate']['enable'])
+        print("is_insufficient_material: ", dictionary['insufficient_material']['enable'])
         print("is_battery: ", is_battery)
         print("is_sacrifice: ", dictionary['sacrifice']['enable'])
         print("is_discovered_attack: ", dictionary['discovered_attack']['enable'])
@@ -102,8 +102,6 @@ class StockfishExplainer:
             check             : dict['piece']    - piece that generated the check
         """
 
-        if dictionary['checkmate']['enable']:
-            explanation += f"{dictionary['checkmate']['piece']} delivers checkmate. "
         if dictionary['castling']['enable']:
             explanation += f"{dictionary['castling']['side']} castling happens. "
         if dictionary['pawn_promotion']['enable']:
@@ -113,10 +111,6 @@ class StockfishExplainer:
                             f"a discovered attack to {dictionary['discovered_attack']['piece'][1]}. ")
         if dictionary['forced_checkmate']['enable']:
             explanation += f"{dictionary['forced_checkmate']['piece']} move generated a safe way that follows to win. "
-        if dictionary['check_forced']['enable']:
-            explanation += "Move generated in order to escape from check. "
-        if dictionary['check']['enable']:
-            explanation += f"{dictionary['check']['piece']} move generated a check. "
 
         if opening:
             explanation += f"This move is a book move from the {opening}. "
@@ -135,6 +129,28 @@ class StockfishExplainer:
         explanation = openai.reword(explanation)
 
         return explanation
+
+    def _is_capture(self, move_san):
+        """
+        Determine if the move results in a capture.
+
+        :param move_san: Move in standard algebraic notation
+        :return: Dictionary with key 'enable' that is True if the move results in a capture, False otherwise
+        """
+        start_end_move = self.stockfish.start_end_from_san(move_san)
+        captured_piece = self.stockfish.piece_at_san(start_end_move[1])
+        enable = self.stockfish.is_capture(move_san)
+
+        return dict({"enable": enable, "captured": captured_piece})
+
+    def _is_en_passant(self, move_san):
+        """
+        Determine if the move results in an en passant
+
+        :param move_san: Move in standard algebraic notation
+        :return: Dictionary with key 'enable' that is True if the move results in an en passant, False otherwise
+        """
+        return {'enable': self.stockfish.is_en_passant(move_san)}
 
     def _is_fork(self, move_san):
         """
@@ -175,10 +191,11 @@ class StockfishExplainer:
 
     def _is_checkmate(self, move_san):
         """
-        Determine if the move results in a checkmate.
+        Determine if the move results in a checkmate
 
         :param move_san: Move in standard algebraic notation
-        :return: True if the move results in a checkmate, False otherwise
+        :return: dictionary with key 'enable' that is True if the move results in a checkmate, False otherwise
+                and key 'piece' that is the piece that delivers checkmate
         """
 
         dictionary = {}
@@ -291,24 +308,25 @@ class StockfishExplainer:
         Determine if the move results in a stalemate.
 
         :param move_san: Move in standard algebraic notation
-        :return: True if the move results in a stalemate, False otherwise
+        :return: Dictionary with key 'enable' that is True if the move results in a stalemate, False otherwise
         """
+
         self.stockfish.move(move_san)
-        is_stalemate = self.stockfish.board.is_stalemate()
+        dictionary = {"enable": self.stockfish.board.is_stalemate()}
         self.stockfish.undo()
-        return is_stalemate
+        return dictionary
 
     def _is_insufficient_material(self, move_san):
         """
         Determine if the move results in a stalemate.
 
         :param move_san: Move in standard algebraic notation
-        :return: True if the move results in a stalemate, False otherwise
+        :return: Dictionary with key 'enable' that is True if the move results in a stalemate, False otherwise
         """
         self.stockfish.move(move_san)
-        is_insufficient_material = self.stockfish.board.is_insufficient_material()
+        dictionary = {"enable": self.stockfish.board.is_insufficient_material()}
         self.stockfish.undo()
-        return is_insufficient_material
+        return dictionary
 
     def _is_a_discovered_attack(self, move_san):
         """
@@ -460,18 +478,13 @@ class StockfishExplainer:
 
         return color, probability
 
-    def _is_en_passant(self, move_san):
-        return self.stockfish.is_en_passant(move_san)
-
-    def _is_capture(self, move_san):
-        return self.stockfish.is_capture(move_san)
-
     def _is_check(self, move_san):
         """
         Determine if the move results in a check.
 
         :param move_san: Move in standard algebraic notation
-        :return: True if the move results in a check, False otherwise
+        :return: Dictionary with key 'enable' that is True if the move results in a check, False otherwise
+                and key 'piece' that is the piece that delivers check
         """
 
         start_end_move = self.stockfish.start_end_from_san(move_san)
@@ -486,18 +499,21 @@ class StockfishExplainer:
         else:
             return dict({"enable": is_check})
 
-    def _is_move_check_forced(self):
+    def _is_move_check_forced(self, move_san):
         """
-        Determine if the move is forced by a check.
+        Determine if the move is forced by a check
 
-        :return: True if the move is forced by a check, False otherwise
+        :return: Dictionary with key 'enable' that is True if the move is forced by a check, False otherwise
+                and key 'piece' that is the piece that makes the player not to be in check anymore
         """
 
+        start_end_move = self.stockfish.start_end_from_san(move_san)
         is_check = self.stockfish.board.is_check()
         is_checkmate = self.stockfish.board.is_checkmate()
+        piece = BoardUtils.piece_at_index_str(self.stockfish.board, self.stockfish.index_from_san(start_end_move[0]))
 
         if is_check and not is_checkmate:
-            return dict({"enable": True})
+            return dict({"enable": True, "piece": piece})
         return dict({"enable": False})
 
     def _is_pin(self, move_san):
