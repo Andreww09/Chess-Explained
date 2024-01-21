@@ -2,75 +2,75 @@ class OpeningsDetector:
     def __init__(self, stockfish):
         self.stockfish = stockfish
 
-    def get_types(self, move_san):
-        openings = []
+    def get_type(self, move_san):
+        opening = None
 
         if self._is_sicilian_defense(move_san):
-            openings.append("Sicilian Defense")
-        if self._is_french_defense(move_san):
-            openings.append("French Defense")
-        if self._is_ruy_lopez_opening(move_san):
-            openings.append("Ruy Lopez Opening")
-        if self._is_caro_kann_defense(move_san):
-            openings.append("Caro-Kann Defense")
-        if self._is_italian_game(move_san):
-            openings.append("Italian Game")
-        if self._is_scandinavian_defense(move_san):
-            openings.append("Scandinavian Defense")
-        if self._is_pirc_defense(move_san):
-            openings.append("Pirc Defense")
-        if self._is_alekhine_defense(move_san):
-            openings.append("Alekhine Defense")
-        if self._is_kings_gambit(move_san):
-            openings.append("King's Gambit")
-        if self._is_scotch_game(move_san):
-            openings.append("Scotch Game")
-        if self._is_vienna_game(move_san):
-            openings.append("Vienna Game")
-        if self._is_queens_gambit(move_san):
-            openings.append("Queen's Gambit")
-        if self._is_slav_defense(move_san):
-            openings.append("Slav Defense")
-        if self._is_king_indian_defense(move_san):
-            openings.append("King's Indian Defense")
-        if self._is_nimzo_indian_defense(move_san):
-            openings.append("Nimzo-Indian Defense")
-        if self._is_queens_indian_defense(move_san):
-            openings.append("Queen's Indian Defense")
-        if self._is_catalan_opening(move_san):
-            openings.append("Catalan Opening")
-        if self._is_bogo_indian_defense(move_san):
-            openings.append("Bogo-Indian Defense")
-        if self._is_grunfeld_defense(move_san):
-            openings.append("Grunfeld Defense")
-        if self._is_dutch_defense(move_san):
-            openings.append("Dutch Defense")
-        if self._is_trompowsky_attack(move_san):
-            openings.append("Trompowsky Attack")
-        if self._is_benko_gambit(move_san):
-            openings.append("Benko Gambit")
-        if self._is_london_system(move_san):
-            openings.append("London System")
-        if self._is_benoni_defense(move_san):
-            openings.append("Benoni Defense")
-        if self._is_reti_opening(move_san):
-            openings.append("Reti Opening")
-        if self._is_english_opening(move_san):
-            openings.append("English Opening")
-        if self._is_birds_opening(move_san):
-            openings.append("Bird's Opening")
-        if self._is_kings_indian_attack(move_san):
-            openings.append("King's Indian Attack")
-        if self._is_kings_fianchetto_opening(move_san):
-            openings.append("King's Fianchetto Opening")
-        if self._is_nimzowitsch_larsen_attack(move_san):
-            openings.append("Nimzowitsch-Larsen Attack")
-        if self._is_polish_opening(move_san):
-            openings.append("Polish Opening")
-        if self._is_grob_opening(move_san):
-            openings.append("Grob Opening")
+            opening = "Sicilian Defense"
+        elif self._is_french_defense(move_san):
+            opening = "French Defense"
+        elif self._is_ruy_lopez_opening(move_san):
+            opening = "Ruy Lopez Opening"
+        elif self._is_caro_kann_defense(move_san):
+            opening = "Caro-Kann Defense"
+        elif self._is_italian_game(move_san):
+            opening = "Italian Game"
+        elif self._is_scandinavian_defense(move_san):
+            opening = "Scandinavian Defense"
+        elif self._is_pirc_defense(move_san):
+            opening = "Pirc Defense"
+        elif self._is_alekhine_defense(move_san):
+            opening = "Alekhine Defense"
+        elif self._is_kings_gambit(move_san):
+            opening = "King's Gambit"
+        elif self._is_scotch_game(move_san):
+            opening = "Scotch Game"
+        elif self._is_vienna_game(move_san):
+            opening = "Vienna Game"
+        elif self._is_queens_gambit(move_san):
+            opening = "Queen's Gambit"
+        elif self._is_slav_defense(move_san):
+            opening = "Slav Defense"
+        elif self._is_king_indian_defense(move_san):
+            opening = "King's Indian Defense"
+        elif self._is_nimzo_indian_defense(move_san):
+            opening = "Nimzo-Indian Defense"
+        elif self._is_queens_indian_defense(move_san):
+            opening = "Queen's Indian Defense"
+        elif self._is_catalan_opening(move_san):
+            opening = "Catalan Opening"
+        elif self._is_bogo_indian_defense(move_san):
+            opening = "Bogo-Indian Defense"
+        elif self._is_grunfeld_defense(move_san):
+            opening = "Grunfeld Defense"
+        elif self._is_dutch_defense(move_san):
+            opening = "Dutch Defense"
+        elif self._is_trompowsky_attack(move_san):
+            opening = "Trompowsky Attack"
+        elif self._is_benko_gambit(move_san):
+            opening = "Benko Gambit"
+        elif self._is_london_system(move_san):
+            opening = "London System"
+        elif self._is_benoni_defense(move_san):
+            opening = "Benoni Defense"
+        elif self._is_reti_opening(move_san):
+            opening = "Reti Opening"
+        elif self._is_english_opening(move_san):
+            opening = "English Opening"
+        elif self._is_birds_opening(move_san):
+            opening = "Bird's Opening"
+        elif self._is_kings_indian_attack(move_san):
+            opening = "King's Indian Attack"
+        elif self._is_kings_fianchetto_opening(move_san):
+            opening = "King's Fianchetto Opening"
+        elif self._is_nimzowitsch_larsen_attack(move_san):
+            opening = "Nimzowitsch-Larsen Attack"
+        elif self._is_polish_opening(move_san):
+            opening = "Polish Opening"
+        elif self._is_grob_opening(move_san):
+            opening = "Grob Opening"
 
-        return openings
+        return opening
 
     def _is_sicilian_defense(self, move_san):
         self.stockfish.move(move_san)

@@ -64,7 +64,7 @@ class StockfishExplainer:
         is_skewer = self._is_skewer(best_move)
         is_forced_checkmate = self._is_forced_checkmate(best_move)
 
-        openings = self.openings_detector.get_types(best_move)
+        opening = self.openings_detector.get_type(best_move)
 
         print("is_pin: ", is_pin)
         print("is_fork: ", is_fork)
@@ -100,8 +100,8 @@ class StockfishExplainer:
             explanation += (f"{dictionary['discovered_attack']['piece'][0]} moved and facilitates "
                             f"a discovered attack to {dictionary['discovered_attack']['piece'][1]}")
 
-        if len(openings) > 0:
-            explanation += f"This move is a book move from the {openings[0]}. "
+        if opening:
+            explanation += f"This move is a book move from the {opening}. "
 
         print("---------------------------------------------------")
         advantage_color, probability = self._calculate_winning_prob()
