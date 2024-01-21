@@ -35,6 +35,8 @@ class StockfishExplainer:
 
         :return: Explanation as a string
         """
+        if self.stockfish.board.outcome():
+            return "The game is already over!"
         best_move = self.stockfish.best_move()
         explanation = f"The best move is {best_move}. "
         dictionary = {}
