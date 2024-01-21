@@ -18,7 +18,7 @@ def train(file):
         print("data.json is not a valid JSON file.")
 
 
-chatbot = ChatBot("lib",
+chatbot = ChatBot("back",
                   preprocessors=['chatterbot.preprocessors.convert_to_ascii',
                                  'chatterbot.preprocessors.unescape_html',
                                  'chatterbot.preprocessors.clean_whitespace'],

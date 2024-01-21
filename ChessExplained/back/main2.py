@@ -5,7 +5,7 @@ import json
 
 def create_and_train_chatbot():
     chatbot = ChatBot(
-        "lib",
+        "back",
         preprocessors=[
             'chatterbot.preprocessors.convert_to_ascii',
             'chatterbot.preprocessors.unescape_html',
