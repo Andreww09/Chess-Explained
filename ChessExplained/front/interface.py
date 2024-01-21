@@ -1,11 +1,11 @@
 from customtkinter import *
 from PIL import ImageTk, Image
-# from chatterbot import ChatBot
+from chatterbot import ChatBot
 import back.stockfish_tools as sf
-from back.utils import BoardUtils
 
 
 class App(CTk):
+
     def __init__(self, engine_path, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
@@ -13,20 +13,20 @@ class App(CTk):
         self.title("Chess Explained")
         self.geometry("700x800")
         self.resizable(False, False)
-        # self.chatbot = ChatBot("back",
-        #                        preprocessors=['chatterbot.preprocessors.convert_to_ascii',
-        #                                       'chatterbot.preprocessors.unescape_html',
-        #                                       'chatterbot.preprocessors.clean_whitespace'],
-        #                        logic_adapters=[
-        #                            {
-        #                                'import_path': 'chatterbot.logic.BestMatch',
-        #                                'default_response': 'Sorry, I am unable to process your request.',
-        #                                'maximum_similarity_threshold': 0.90
-        #                            }
-        #                        ]
-        #                        )
+        self.chatbot = ChatBot("back",
+                          preprocessors=['chatterbot.preprocessors.convert_to_ascii',
+                                         'chatterbot.preprocessors.unescape_html',
+                                         'chatterbot.preprocessors.clean_whitespace'],
+                          logic_adapters=[
+                              {
+                                  'import_path': 'chatterbot.logic.BestMatch',
+                                  'default_response': 'Sorry, I am unable to process your request.',
+                                  'maximum_similarity_threshold': 0.90
+                              }
+                          ]
+                          )
 
-        self.img = ImageTk.PhotoImage(Image.open("label.png"))
+        self.img = ImageTk.PhotoImage(Image.open(".\label.png"))
         self.label = CTkLabel(master=self, width=680, height=90, image=self.img, text="")
         self.label.place(x=10, y=10)
 
@@ -34,8 +34,7 @@ class App(CTk):
         self.entryBox.place(x=10, y=690)
         self.entryBox.focus()
 
-        self.button1 = CTkButton(master=self, width=75, height=45, text="Send",
-                                 command=lambda: self._on_enter_pressed())
+        self.button1 = CTkButton(master=self, width=75, height=45, text="Send", command=lambda: self._on_enter_pressed())
         self.button1.place(x=615, y=690)
 
         self.button2 = CTkButton(master=self, width=75, height=45, text="Best Move", command=lambda: self.input())
@@ -65,7 +64,7 @@ class App(CTk):
         fen = fen.lstrip()
         fen = fen.rstrip()
         if fen:
-            if BoardUtils.is_valid_fen(fen):
+            if self._is_valid_fen(fen):
                 self._get_best_move(fen)
             else:
                 self.textBox.configure(state=NORMAL)
@@ -99,4 +98,38 @@ class App(CTk):
         self.textBox.insert(END, "\n\n")
         self.textBox.configure(state=DISABLED)
 
-x = App("../stockfish/stockfish-windows-x86-64-modern.exe")
+    def _is_valid_fen(self, fen_str):
+        # Split the FEN string into its components
+        fen_parts = fen_str.split()
+
+        # Check if there are exactly 6 parts
+        if len(fen_parts) != 6:
+            return False
+
+        # Check the first field (piece placement)
+        if not all(ch in 'rnbqkpRNBQKP/' or ch.isdigit() for ch in fen_parts[0]):
+            return False
+
+        # Check the second field (active color)
+        if fen_parts[1] not in {'w', 'b'}:
+            return False
+
+        # Check the third field (castling availability)
+        if not all(ch in '-KkQq' for ch in fen_parts[2]):
+            return False
+
+        # Check the fourth field (en passant target square)
+        if not (fen_parts[3] == '-' or (
+                len(fen_parts[3]) == 2 and fen_parts[3][0] in 'abcdefgh' and fen_parts[3][1] in '12345678')):
+            return False
+
+        # Check the fifth field (halfmove clock)
+        if not fen_parts[4].isdigit():
+            return False
+
+        # Check the sixth field (fullmove number)
+        if not fen_parts[5].isdigit():
+            return False
+
+        # If all checks pass, the FEN string is valid
+        return True
