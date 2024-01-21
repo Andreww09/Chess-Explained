@@ -1,15 +1,30 @@
 from customtkinter import *
 from PIL import ImageTk, Image
+from chatterbot import ChatBot
+import back.stockfish_tools as sf
 
 
 class App(CTk):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, engine_path, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
-
+        self.engine_path = engine_path
         self.title("Chess Explained")
         self.geometry("700x800")
+        self.resizable(False, False)
+        self.chatbot = ChatBot("back",
+                          preprocessors=['chatterbot.preprocessors.convert_to_ascii',
+                                         'chatterbot.preprocessors.unescape_html',
+                                         'chatterbot.preprocessors.clean_whitespace'],
+                          logic_adapters=[
+                              {
+                                  'import_path': 'chatterbot.logic.BestMatch',
+                                  'default_response': 'Sorry, I am unable to process your request.',
+                                  'maximum_similarity_threshold': 0.90
+                              }
+                          ]
+                          )
 
         self.img = ImageTk.PhotoImage(Image.open(".\label.png"))
         self.label = CTkLabel(master=self, width=680, height=90, image=self.img, text="")
@@ -57,12 +72,13 @@ class App(CTk):
                 self.textBox.configure(state=DISABLED)
 
     def _insert_message(self, msg, sender):
+        print(msg)
         msg1 = f"{sender}: {msg}\n"
         self.textBox.configure(state=NORMAL)
         self.textBox.insert(END, msg1)
         self.textBox.configure(state=DISABLED)
-        response = f"raspuns la mesajul{msg1}" #insert function for getting a response from bot #MAIN3
-        msg2 = f"ChessBot: {response}\n"
+        response = self.chatbot.get_response(msg.lower())
+        msg2 = f"ChessBot: {response}\n\n"
         self.textBox.configure(state=NORMAL)
         self.textBox.insert(END, msg2)
         self.textBox.configure(state=DISABLED)
@@ -70,18 +86,15 @@ class App(CTk):
         return 0
 
     def _get_best_move(self, fen):
-        best_fen = fen
-        best_move = "best move = this" #insert function for getting the best move
-        explain = "expl"
         self.textBox.configure(state=NORMAL)
-        self.textBox.insert(END, f"Best move = {best_move}\n")
+        self.textBox.insert(END, f"You: What`s the best move for this board : {fen}\n")
+        stockfish = sf.Stockfish(engine_path=self.engine_path)
+        stockfish.setup(fen)
+        explainer = sf.StockfishExplainer(stockfish)
+        explain = explainer.explain()
+        self.textBox.configure(state=NORMAL)
+        self.textBox.insert(END, "Chatbot: ")
         self.textBox.insert(END, explain)
-        self.textBox.insert(END, "\n")
-        self.textBox.insert(END, "Board before best move:\n")
-        self.textBox.insert(END, fen)
-        self.textBox.insert(END, "\n")
-        self.textBox.insert(END, "Board after best move:\n")
-        self.textBox.insert(END, best_fen)
         self.textBox.insert(END, "\n\n")
         self.textBox.configure(state=DISABLED)
 
@@ -120,6 +133,3 @@ class App(CTk):
 
         # If all checks pass, the FEN string is valid
         return True
-
-
-#x = App()
