@@ -30,4 +30,4 @@ chatbot = ChatBot("back",
                       }
                   ]
                   )
-train('training_dataset.json')
+train('../back/datasets/training_dataset.json')

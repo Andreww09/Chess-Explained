@@ -16,10 +16,9 @@ class ExplanationBuilder:
         explanation += self.capture_explanation(self.dictionary['capture'])
         explanation += self.checkmate_explanation(self.dictionary['checkmate'])
         explanation += self.skewer_explanation(self.dictionary['skewer'])
+        explanation += self.pin_explanation(self.dictionary['pin'])
         explanation += self.battery_explanation(self.dictionary['battery'])
         explanation += self.discovered_attack_explanation(self.dictionary['discovered_attack'])
-
-        explanation += self.pin_explanation(self.dictionary['pin'])
         return explanation
 
     @staticmethod

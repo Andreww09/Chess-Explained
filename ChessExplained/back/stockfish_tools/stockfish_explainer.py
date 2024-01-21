@@ -102,8 +102,8 @@ class StockfishExplainer:
         explanation += explainer.build_explanation()
 
         # OpenAI
-        openai = OpenAI()
-        explanation = openai.reword(explanation)
+        # openai = OpenAI()
+        # explanation = openai.reword(explanation)
 
         explanation += f" The {advantage_color} player has the advantage."
         explanation += f" The probability of winning after the move for the current player is {probability}%."
@@ -215,6 +215,8 @@ class StockfishExplainer:
         self.stockfish.switch_turn()
 
         is_battery = False
+
+        attacker_piece = None
 
         # Check if there is a battery
         for attacker in attackers:
@@ -579,9 +581,9 @@ class StockfishExplainer:
                     pinned = BoardUtils.expand_piece_name(str(attacked_piece))
                     defended = BoardUtils.expand_piece_name(str(other_attacked_piece))
 
-                    # return absolute or relative pin
-                    if attacked_piece.piece_type == 6:
-                        # return absolute pin if the attacked piece is a king
+                    # Return absolute or relative pin
+                    if other_attacked_piece.piece_type == 6:
+                        # Return absolute pin if the attacked piece is a king
                         return dict({"enable": True, "type": "absolute", "pinned": pinned, "defended": defended})
                     else:
                         # return relative pin if the attacked piece is not a king
