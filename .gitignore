@@ -1,8 +1,8 @@
 .idea
 tema1/db.sqlite3
 venv
-stockfish
+ChessExplained/stockfish
 lib/Stockfish/__pycache__/
 lib/utils/__pycache__/
 lib/__pycache__/
-ChessExplained/lib/utils/__pycache__/
+ChessExplained/back/utils/__pycache__/

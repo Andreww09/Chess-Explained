@@ -1,8 +1,9 @@
-from lib.utils import BoardUtils
-from lib.stockfish_tools import OpeningsDetector
-from lib.stockfish_tools.explanation_builder import ExplanationBuilder
+from back.utils import BoardUtils
+from back.stockfish_tools import OpeningsDetector
+from back.stockfish_tools.explanation_builder import ExplanationBuilder
 import chess
 import chess.engine
+from back.OpenAI import OpenAI
 
 
 class StockfishExplainer:
@@ -128,6 +129,10 @@ class StockfishExplainer:
 
         explainer = ExplanationBuilder(dictionary)
         explanation += explainer.build_explanation()
+
+        # OpenAI
+        openai = OpenAI()
+        explanation = openai.reword(explanation)
 
         return explanation
 
