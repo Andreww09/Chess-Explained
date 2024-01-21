@@ -2,7 +2,7 @@ from openai import OpenAI as gpt
 
 
 class OpenAI:
-    def __init__(self, api_key="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"):
+    def __init__(self, api_key=""):
         self.api_key = api_key
         self.client = gpt(
             api_key=api_key
