@@ -54,7 +54,7 @@ class StockfishExplainer:
         is_insufficient_material = self._is_insufficient_material(best_move)
         is_battery = self._is_battery(best_move)
         is_sacrifice = self._is_sacrifice(best_move)
-        is_discovered_attack = self._is_a_discovered_attack(best_move)
+        dict['discovered_attack'] = self._is_a_discovered_attack(best_move)
         dict['castling'] = self._is_a_castling(best_move)
         dict['pawn_promotion'] = self._is_pawn_promotion(best_move)
         is_skewer = self._is_skewer(best_move)
@@ -103,7 +103,7 @@ class StockfishExplainer:
         print("is_insufficient_material: ", is_insufficient_material)
         print("is_battery: ", is_battery)
         print("is_sacrifice: ", is_sacrifice)
-        print("is_discovered_attack: ", is_discovered_attack)
+        print("is_discovered_attack: ", dict['discovered_attack']['enable'])
         print("is_castling: ", dict['castling']['enable'])
         print("is_pawn_promotion: ", dict['pawn_promotion']['enable'])
         print("is_skewer: ", is_skewer)
@@ -141,12 +141,21 @@ class StockfishExplainer:
         print("is_grunfeld_defense: ", is_grunfeld_defense)
         print("is_grob_opening: ", is_grob_opening)
 
+        #  EXPLANATIONS
+        """ 
+            in some cases, key 'piece' corresponds to an explicit piece(type of promoted pawn,
+            the piece who delivers checkmates, etc). In other cases, key 'piece' corresponds to a list of 
+            pieces(discovered_attack, fork , etc): first piece is always the attacker, followings are attacked pieces 
+        """
+
         if dict['checkmate']['enable']:
             explanation += f"{dict['checkmate']['piece']} delivers checkmate. "
         if dict['castling']['enable']:
             explanation += f"{dict['castling']['side']} castling happens. "
         if dict['pawn_promotion']['enable']:
             explanation += f"Pawn promoted to {dict['pawn_promotion']['piece']}. "
+        if dict['discovered_attack']['enable']:
+            explanation += f"{dict['discovered_attack']['piece'][0]} moved and facilitates a discovered attack to {dict['discovered_attack']['piece'][1]}"
 
         print("---------------------------------------------------")
         advantage_color, probability = self._calculate_winning_prob()
@@ -324,10 +333,12 @@ class StockfishExplainer:
             :return: True if the move results in a discovered attack, False otherwise
         """
 
+        dict = {}
         from_square = self.stockfish.board.parse_san(move_san).from_square
         to_square = self.stockfish.board.parse_san(move_san).to_square
-        print(from_square)
-        print(to_square)
+
+        attacker_piece_type = BoardUtils.piece_at_index_str(self.stockfish.board, from_square)
+        attacker_piece = BoardUtils.expand_piece_name(attacker_piece_type)
 
         squares_before_move = self.stockfish.captures_except_square_allowing_duplicates(from_square)
 
@@ -340,8 +351,17 @@ class StockfishExplainer:
 
         for attacked_square in squares_after_move:
             if squares_after_move.count(attacked_square) > squares_before_move.count(attacked_square):
-                return True
-        return False
+                dict['enable'] = True
+                print(attacked_square)
+                attacked_piece_type = self.stockfish.piece_at_san(attacked_square)
+                print(attacked_piece_type)
+                attacked_piece = BoardUtils.expand_piece_name(str(attacked_piece_type))
+                print(attacked_piece)
+                dict['piece'] = [attacker_piece, attacked_piece]
+                return dict
+
+        dict['enable'] = False
+        return dict
 
     def _is_a_castling(self, move_san):
         enable = self.stockfish.board.is_castling(self.stockfish.board.parse_san(move_san))
