@@ -1,6 +1,6 @@
-from lib.utils import BoardUtils
-from lib.stockfish_tools import OpeningsDetector
-from lib.stockfish_tools.explanation_builder import ExplanationBuilder
+from back.utils import BoardUtils
+from back.stockfish_tools import OpeningsDetector
+from back.stockfish_tools.explanation_builder import ExplanationBuilder
 import chess
 import chess.engine
 
