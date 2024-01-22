@@ -135,11 +135,11 @@ class Util:
             action = "checkmate"
 
         if capture != "" and action != "":
-            message = f"{piece} is moved to {rank} line and {file} column and generate {capture} and {action}. "
+            message = f"{piece} is moved to {rank} line and {file} column and generates {capture} and {action}. "
         elif capture != "" and action == "":
-            message = f"{piece} is moved to {rank} line and {file} column and generate {capture}. "
+            message = f"{piece} is moved to {rank} line and {file} column and generates {capture}. "
         elif capture == "" and action != "":
-            message = f"{piece} is moved to {rank} line and {file} column and generate {action}. "
+            message = f"{piece} is moved to {rank} line and {file} column and generates {action}. "
         else:
             message = f"{piece} is moved to {rank} line and {file} column. "
         return message
