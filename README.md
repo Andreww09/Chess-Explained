@@ -9,6 +9,7 @@
 
 
 ### Requirements:
+- python 3.7.9 (3.7)
 - pip install chess
 - pip install openai
 - python -m pip install chatterbot==1.0.4 pytz
