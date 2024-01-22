@@ -114,7 +114,7 @@ class StockfishExplainer:
         probability = round(probability, 2)
 
         print("Player that has advantage: " + str(advantage_color))
-        print("Winning probability: " + str(probability * 100) + "%")
+        print("Winning probability: " + str(probability * 100) + "%.")
 
         explainer = ExplanationBuilder(techniques)
         explanation += explainer.build_explanation()
