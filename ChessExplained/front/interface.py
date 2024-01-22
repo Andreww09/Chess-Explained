@@ -4,6 +4,7 @@ from PIL import ImageTk, Image
 from chatterbot import ChatBot
 import back.stockfish_tools as sf
 from back.utils import BoardUtils
+from back.utils import Util
 
 
 class App(CTk):
@@ -84,7 +85,9 @@ class App(CTk):
         self.textBox.configure(state=NORMAL)
         self.textBox.insert(END, msg1)
         self.textBox.configure(state=DISABLED)
-        response = self.chatbot.get_response(msg.lower())
+        response = Util.process_question(msg)
+        if response is None:
+            response = self.chatbot.get_response(msg.lower())
         msg2 = f"ChessBot: {response}\n\n"
         self.textBox.configure(state=NORMAL)
         self.textBox.insert(END, msg2)
