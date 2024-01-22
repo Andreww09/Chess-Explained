@@ -1,7 +1,6 @@
 .idea
 tema1/db.sqlite3
 venv
-ChessExplained/stockfish
 back/Stockfish/__pycache__/
 back/utils/__pycache__/
 back/__pycache__/
