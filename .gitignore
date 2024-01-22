@@ -9,6 +9,7 @@ back/detectors/__pycache__/
 back/stockfish_tools/__pycache__/
 back/OpenAI/__pycache__/
 front/__pycache__/
+ChessExplained/back/__pycache__/
 ChessExplained/back/utils/__pycache__/
 ChessExplained/back/detectors/__pycache__/
 ChessExplained/back/stockfish_tools/__pycache__/
