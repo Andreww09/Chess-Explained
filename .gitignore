@@ -10,3 +10,16 @@ back/stockfish_tools/__pycache__/
 back/OpenAI/__pycache__/
 front/__pycache__/
 ChessExplained/back/utils/__pycache__/
+ChessExplained/back/detectors/__pycache__/
+ChessExplained/back/stockfish_tools/__pycache__/
+ChessExplained/back/OpenAI/__pycache__/
+ChessExplained/front/__pycache__/
+ChessExplained/venv/
+ChessExplained/ChessExplained/__pycache__/
+ChessExplained/ChessExplained/back/utils/__pycache__/
+ChessExplained/ChessExplained/back/detectors/__pycache__/
+ChessExplained/ChessExplained/back/stockfish_tools/__pycache__/
+ChessExplained/ChessExplained/back/OpenAI/__pycache__/
+ChessExplained/ChessExplained/front/__pycache__/
+ChessExplained/ChessExplained/venv/
+ChessExplained/ChessExplained/ChessExplained/__pycache__/
