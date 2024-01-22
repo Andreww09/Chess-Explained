@@ -122,6 +122,9 @@ class StockfishExplainer:
         explanation += f" The current player has a winning probability of {probability * 100}%"
         explanation += "The player that has advantage is " + advantage_color + ". "
 
+        if not any(techniques.values()):
+            explanation += "This move improves the position of the current player."
+
         # OpenAI
         openai = OpenAI()
         explanation = openai.reword(explanation)
