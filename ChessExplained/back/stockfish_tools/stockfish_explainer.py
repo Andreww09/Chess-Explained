@@ -129,7 +129,7 @@ class StockfishExplainer:
         openai = OpenAI()
         explanation = openai.reword(explanation)
 
-        return explanation
+        return self.stockfish.board, explanation
 
     def _calculate_winning_prob(self):
         eval_first_item = self.stockfish.first_item_evaluation()

@@ -279,9 +279,9 @@ class TechniquesDetector:
         from_square = self.stockfish.board.parse_san(move_san).from_square
         to_square = self.stockfish.board.parse_san(move_san).to_square
         if chess.square_rank(from_square) < chess.square_rank(to_square):
-            side = "KingSide"
-        else:
             side = "QueenSide"
+        else:
+            side = "KingSide"
 
         return dict({"enable": enable, "side": side})
 
