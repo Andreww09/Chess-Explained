@@ -106,7 +106,7 @@ class StockfishExplainer:
 
         # check checkmate, forced checkmate
         if techniques['checkmate']['enable'] or techniques['forced_checkmate']['enable']:
-            probability = 100
+            probability = 1
         elif techniques['stalemate']['enable'] or techniques['insufficient_material']['enable']:
             probability = 0
 
