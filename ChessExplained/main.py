@@ -2,7 +2,7 @@ from back.stockfish_tools import Stockfish
 # from back.stockfish_tools import StockfishExplainer
 from front import App
 
-engine_path = "./stockfish/stockfish-windows-x86-64-modern.exe"
+engine_path = "./resources/stockfish/stockfish-windows-x86-64-modern.exe"
 stockfish = Stockfish(engine_path)
 
 new_game = "8/6r1/5n2/8/8/4B3/1k6/7K w - - 0 1"

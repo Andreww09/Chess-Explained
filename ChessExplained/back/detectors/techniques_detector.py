@@ -37,6 +37,11 @@ class TechniquesDetector:
         """
         start_end_move = self.stockfish.start_end_from_san(move_san)
         captured_piece = self.stockfish.piece_at_san(start_end_move[1])
+
+        # If the move is an en passant, the captured piece is a pawn
+        if captured_piece is None:
+            captured_piece = "Pawn"
+
         enable = self.stockfish.is_capture(move_san)
 
         return dict({"enable": enable, "captured": captured_piece})

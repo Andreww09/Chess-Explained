@@ -5,13 +5,13 @@ class ExplanationBuilder:
 
     def build_explanation(self):
         explanation = ""
+        explanation += self.en_passant_explanation(self.dictionary['en_passant'])
         explanation += self.capture_explanation(self.dictionary['capture'])
         explanation += self.checkmate_explanation(self.dictionary['checkmate'])
         explanation += self.insufficient_material_explanation(self.dictionary['insufficient_material'])
         explanation += self.stalemate_explanation(self.dictionary['stalemate'])
         explanation += self.check_explanation(self.dictionary['check'])
         explanation += self.check_forced_explanation(self.dictionary['check_forced'])
-        explanation += self.en_passant_explanation(self.dictionary['en_passant'])
         explanation += self.battery_explanation(self.dictionary['battery'])
         explanation += self.castling_explanation(self.dictionary['castling'])
         explanation += self.sacrifice_explanation(self.dictionary['sacrifice'])
@@ -68,7 +68,7 @@ class ExplanationBuilder:
         if info['enable'] is False:
             return ""
 
-        return "It captures the pawn by en passant."
+        return "En passant was played."
 
     @staticmethod
     def castling_explanation(info):
