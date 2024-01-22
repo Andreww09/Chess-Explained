@@ -1,3 +1,5 @@
+import chess
+import chess.svg
 import customtkinter
 from customtkinter import *
 from PIL import ImageTk, Image
@@ -5,6 +7,9 @@ from chatterbot import ChatBot
 import back.stockfish_tools as sf
 from back.utils import BoardUtils
 from back.utils import Util
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPDF
+from pdf2image import convert_from_path
 
 
 class App(CTk):
@@ -32,7 +37,9 @@ class App(CTk):
         self.grid_rowconfigure((0, 1, 2, 3, 4, 5), weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-        self.img = ImageTk.PhotoImage(Image.open("front/assets/label.png"))
+        self.img = CTkImage(light_image=Image.open("front/assets/label.png"),
+                            dark_image=Image.open("front/assets/label.png"),
+                            size=(680, 90))
         self.label = CTkLabel(master=self, image=self.img, text="")
         self.label.grid(row=0, column=0,
                         columnspan=5,
@@ -116,6 +123,34 @@ class App(CTk):
                 reformatted_board += char + ' '
         return reformatted_board.strip()
 
+    @staticmethod
+    def render_chess_position(fen):
+        board = chess.Board(fen)
+        svg_content = chess.svg.board(board=board)
+
+        with open("front/assets/board.svg", "w") as svg_file:
+            svg_file.write(svg_content)
+
+        return "front/assets/board.svg"
+
+    @staticmethod
+    def convert_svg_to_png(svg_file_path):
+        # Convert SVG to PDF
+        drawing = svg2rlg(svg_file_path)
+        renderPDF.drawToFile(drawing, "front/assets/out.pdf")
+
+        # Convert PDF to PNG
+        pages = convert_from_path('front/assets/out.pdf', poppler_path='resources/poppler-23.11.0/Library/bin')
+        pages[0].save('front/assets/board.png', 'PNG')
+
+        # Delete PDF
+        os.remove("front/assets/out.pdf")
+
+        # Delete SVG
+        os.remove(svg_file_path)
+
+        return 'front/assets/board.png'
+
     def _get_best_move(self, fen):
         self.textBox.configure(state=NORMAL)
         self.textBox.insert(END, f"You: What`s the best move for this board : {fen}\n")
@@ -129,8 +164,17 @@ class App(CTk):
         self.textBox.insert(END, "\n\n")
         self.textBox.configure(state=DISABLED)
 
-        popup = PopupWindow(self, "Board display", self.reformat_board(str(board)))
+        # Get svg file path
+        svg_file_path = self.render_chess_position(fen)
+
+        # Convert SVG to PNG
+        png_file_path = self.convert_svg_to_png(svg_file_path)
+
+        popup = PopupWindow(self, "Board display", png_file_path)
         popup.wait_window()
+
+        # Delete PNG
+        os.remove(png_file_path)
 
 
 class PopupWindow(customtkinter.CTkToplevel):
@@ -140,15 +184,15 @@ class PopupWindow(customtkinter.CTkToplevel):
     Parameters:
         master (Tk): The master window.
         title (str): The title of the popup window.
-        message (str): The message to be displayed in the popup.
+        image (str): The path to the image to be displayed in the popup.
         **kwargs: Additional keyword arguments.
 
     Attributes:
-        message_label (customtkinter.CTkLabel): Label displaying the message.
+        img (ImageTk.PhotoImage): The image to be displayed in the popup.
         ok_button (customtkinter.CTkButton): Button to acknowledge and close the popup.
     """
 
-    def __init__(self, master, title, message, **kwargs):
+    def __init__(self, master, title, image, **kwargs):
         """
         Initialize the PopupWindow.
 
@@ -161,24 +205,26 @@ class PopupWindow(customtkinter.CTkToplevel):
         super().__init__(master, **kwargs)
 
         self.title(title)
-        self.geometry(f"{400}x{250}")
+        self.geometry(f"{450}x{450}")
         self.resizable(False, False)
         self.grid_columnconfigure(0, weight=1)
 
-        # Message Label
-        self.message_label = customtkinter.CTkLabel(master=self,
-                                                    text=message)
-        self.message_label.grid(row=0, column=0,
+        with Image.open(image) as img:
+            # Image
+            self.img = CTkImage(light_image=img,
+                                dark_image=img,
+                                size=(390, 390))
+            self.label = customtkinter.CTkLabel(master=self, image=self.img, text="")
+            self.label.grid(row=0, column=0,
+                            sticky="nsew")
+
+            # Ok Button
+            self.ok_button = customtkinter.CTkButton(master=self,
+                                                     text="Ok",
+                                                     command=self.ok_button_event)
+            self.ok_button.grid(row=1, column=0,
                                 padx=20, pady=20,
                                 sticky="ew")
-
-        # Ok Button
-        self.ok_button = customtkinter.CTkButton(master=self,
-                                                 text="Ok",
-                                                 command=self.ok_button_event)
-        self.ok_button.grid(row=1, column=0,
-                            padx=20, pady=20,
-                            sticky="ew")
 
         # Deactivate the main window
         self.grab_set()
