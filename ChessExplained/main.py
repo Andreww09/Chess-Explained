@@ -11,3 +11,5 @@ stockfish.setup(new_game)
 
 stockfish_explainer = StockfishExplainer(stockfish)
 print(stockfish_explainer.explain())
+
+App(engine_path=engine_path)
