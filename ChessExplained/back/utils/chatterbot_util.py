@@ -31,9 +31,9 @@ class Util:
     def extract_chess_notations(input_string):
         # Define the regex pattern for chess algebraic notation
         for punctuation in string.punctuation:
-            if punctuation != '+':
+            if punctuation != '+' and punctuation != '#':  # Exclude both + and #
                 input_string = input_string.replace(punctuation, ' ')
-        pattern = r'\s[PNBRQK]?[a-h]?[1-8]?[x]?[a-h][1-8][\+]?\s'
+        pattern = r'\s[PNBRQK]?[a-h]?[1-8]?[x]?[a-h][1-8][\+#]?\s'  # Include # in the pattern
 
         # Use re.findall to find all matches in the input string
         matches = re.findall(pattern, input_string)

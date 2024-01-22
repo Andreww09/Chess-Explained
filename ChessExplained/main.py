@@ -1,5 +1,5 @@
 from back.stockfish_tools import Stockfish
-from back.stockfish_tools import StockfishExplainer
+# from back.stockfish_tools import StockfishExplainer
 from front import App
 
 engine_path = "./stockfish/stockfish-windows-x86-64-modern.exe"
