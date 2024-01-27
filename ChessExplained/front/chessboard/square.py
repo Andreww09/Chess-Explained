@@ -1,4 +1,5 @@
 import customtkinter
+from front.chessboard import Piece
 
 
 class Square(customtkinter.CTkFrame):
@@ -28,6 +29,8 @@ class Square(customtkinter.CTkFrame):
         self.square_color = square_color
         self.configure(fg_color=square_color)
 
+        self.piece = None
+
         # self.bind("<Enter>", self.on_enter)
         # self.bind("<Leave>", self.on_leave)
 
@@ -42,3 +45,14 @@ class Square(customtkinter.CTkFrame):
         Event handler for the mouse leaving the square. Un-highlights the square.
         """
         self.configure(bg=self.square_color)
+
+    def place_piece(self, piece):
+        """
+        Place a piece on the square.
+
+        Parameters:
+            piece (Piece): The piece to be placed on the square.
+        """
+        self.piece = piece
+        self.piece.place(x=0, y=0)
+        self.piece.lift()

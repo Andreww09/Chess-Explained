@@ -2,7 +2,7 @@ import chess
 import chess.svg
 import customtkinter
 from customtkinter import *
-from PIL import ImageTk, Image
+from PIL import Image
 from chatterbot import ChatBot
 import back.stockfish_tools as sf
 from back.utils import BoardUtils
