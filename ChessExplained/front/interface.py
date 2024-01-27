@@ -21,8 +21,8 @@ class App(CTk):
         super().__init__(*args, **kwargs)
         self.engine_path = engine_path
         self.title("Chess Explained")
-        self.geometry("720x720")
-        self.minsize(670, 670)
+        self.geometry("680x680")
+        self.minsize(580, 580)
         self.resizable(True, True)
         self.chatbot = ChatBot("back",
                                preprocessors=['chatterbot.preprocessors.convert_to_ascii',
