@@ -4,15 +4,38 @@ import customtkinter
 
 from front.chessboard import Square
 from front.chessboard import Piece
+import chess
 
 
 class Board(customtkinter.CTkFrame):
-    def __init__(self, master, **kwargs):
+    def __init__(self, master, stockfish, **kwargs):
         super().__init__(master, **kwargs)
 
         self.squares = []
         self.create_squares()
         self.menu = None
+        self.stockfish = stockfish
+        self.fen = None
+
+    def load_from_fen(self):
+        self.update_fen()
+        self.stockfish.setup(self.fen)
+        print(self.fen)
+        for square_index in chess.scan_reversed(self.stockfish.board.occupied):
+            piece_color = self.stockfish.board.piece_at(square_index).color
+            piece_type = self.stockfish.board.piece_at(square_index).symbol()
+            print(f"Square Index: {square_index}, Piece Type: {piece_type}, Piece Color: {piece_color}")
+            square = self.squares[63 - square_index]
+            rank = square.rank
+            file = square.file
+            print(rank)
+            print(file)
+            piece = Piece(color=piece_color, piece_type=piece_type, position=(rank, file))
+            square.place_piece(piece)
+        self.print_board()
+
+    def update_fen(self):
+        self.fen = self.menu.fen_text
 
     def add_menu(self, menu):
         self.menu = menu
@@ -45,6 +68,7 @@ class Board(customtkinter.CTkFrame):
         #  o pot afisa -> printez toata tabla din nou, se misca rapid oricum
         self.print_board()
     '''
+
     def calculate_index_square(self, rank, file):
         linear_index = rank * 8 + file
         return linear_index

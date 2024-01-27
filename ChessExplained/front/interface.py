@@ -21,6 +21,7 @@ class App(CTk):
 
         super().__init__(*args, **kwargs)
         self.engine_path = engine_path
+        self.stockfish = sf.Stockfish(engine_path=self.engine_path)
         self.title("Chess Explained")
         self.geometry("680x680")
         self.minsize(1080, 680)
@@ -47,7 +48,7 @@ class App(CTk):
                        sticky="nsew",
                        padx=10, pady=10)
 
-        self.board = Board(master=self)
+        self.board = Board(master=self, stockfish=self.stockfish)
         self.board.grid(row=1, column=0,
                         sticky="nsew",
                         padx=10, pady=10)

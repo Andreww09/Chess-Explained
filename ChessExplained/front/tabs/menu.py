@@ -1,5 +1,6 @@
 import customtkinter
 from front.popup_windows import PopupWindow
+from back.utils import BoardUtils
 
 
 class Menu(customtkinter.CTkFrame):
@@ -29,11 +30,15 @@ class Menu(customtkinter.CTkFrame):
 
     def load_from_fen(self):
         fen_text = self.insert_fen_text.get("1.0", "end-1c").strip()
-
+        fen_text = fen_text.lstrip()
+        fen_text = fen_text.rstrip()
         if not fen_text:
             empty_fen = PopupWindow(self.master, "Empty Fen", "You cannot insert an empty Fen!")
+        elif not BoardUtils.is_valid_fen(fen_text):
+            invalid_fen = PopupWindow(self.master, "Invalid Fen", "This Fen is invalid, please insert another one!")
         else:
             self.fen_text = fen_text
+            self.board.load_from_fen()
 
     def show_chat_window(self):
         # chat_window = PopupWindow(self.master, "Chat Window", "Start a conversation.")
