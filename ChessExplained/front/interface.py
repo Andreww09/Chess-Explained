@@ -12,6 +12,7 @@ from reportlab.graphics import renderPDF
 from pdf2image import convert_from_path
 
 from front.chessboard import Board
+from front.tabs import Menu
 
 
 class App(CTk):
@@ -41,8 +42,12 @@ class App(CTk):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
+        self.menu = Menu(master=self)
+        self.menu.grid(row=0, column=0,
+                       sticky="nsew",
+                       padx=10, pady=10)
         self.board = Board(master=self)
-        self.board.grid(row=0, column=0,
+        self.board.grid(row=1, column=0,
                         sticky="nsew",
                         padx=10, pady=10)
 
