@@ -6,9 +6,6 @@ class Board(customtkinter.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
 
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=1)
-
         self.squares = []
         self.create_squares()
 
@@ -21,4 +18,9 @@ class Board(customtkinter.CTkFrame):
                 square_color = "white" if (row + col) % 2 == 0 else "gray"
                 square = Square(self, square_color)
                 square.grid(row=row, column=col, sticky="nsew")
+
+                # Configure the weights of the squares
+                self.grid_rowconfigure(row, weight=1)
+                self.grid_columnconfigure(col, weight=1)
+
                 self.squares.append(square)

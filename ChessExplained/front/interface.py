@@ -21,7 +21,7 @@ class App(CTk):
         super().__init__(*args, **kwargs)
         self.engine_path = engine_path
         self.title("Chess Explained")
-        self.geometry("750x600")
+        self.geometry("720x720")
         self.resizable(True, True)
         self.chatbot = ChatBot("back",
                                preprocessors=['chatterbot.preprocessors.convert_to_ascii',
@@ -36,9 +36,14 @@ class App(CTk):
                                ]
                                )
 
+        # Center the content
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
         self.board = Board(master=self)
         self.board.grid(row=0, column=0,
-                        sticky="nsew")
+                        sticky="nsew",
+                        padx=10, pady=10)
 
         # self.grid_rowconfigure((0, 1, 2, 3, 4, 5), weight=1)
         # self.grid_columnconfigure(0, weight=1)
