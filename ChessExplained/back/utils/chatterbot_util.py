@@ -29,6 +29,19 @@ class Util:
 
     @staticmethod
     def extract_chess_notations(input_string):
+        # check for castling
+        if "O-O-O" in input_string:
+            queenSide = True
+            input_string = input_string.replace("O-O-O", "")
+            print(input_string)
+        else:
+            queenSide = False
+
+        if "O-O" in input_string:
+            kingSide = True
+        else:
+            kingSide = False
+
         # Define the regex pattern for chess algebraic notation
         for punctuation in string.punctuation:
             if punctuation != '+' and punctuation != '#':  # Exclude both + and #
@@ -39,6 +52,12 @@ class Util:
         matches = re.findall(pattern, input_string)
         clean_matches = [i.strip() for i in matches]
 
+        if queenSide:
+            clean_matches += ["O-O-O"]
+        if kingSide:
+            clean_matches += ["O-O"]
+
+        print(clean_matches)
         return clean_matches
 
     @staticmethod
@@ -105,20 +124,29 @@ class Util:
 
     @staticmethod
     def preprocess_san(result):
-        message = None
-        capture = ""
+
+        if result == "O-O-O":
+            return "O-O-O represents QueenSide Castling"
+        if result == "O-O":
+            return "O-O represents KingSide Castling"
+        capture = None
+        column_attack = None
         if result[0] not in "KkQqNnRrBb":
             piece = "Pawn"
             if result[0] == 'x':
                 capture = "capture"
                 rank = Util.get_rank(result[1])
                 file = Util.get_file(result[2])
+            elif result[0] != 'x' and result[1] == 'x':
+                capture = "capture"
+                column_attack = Util.get_rank(result[0])
+                rank = Util.get_rank(result[2])
+                file = Util.get_file(result[3])
             else:
                 rank = Util.get_rank(result[0])
                 file = Util.get_file(result[1])
         else:
             piece = Util.get_name_piece(result[0])
-
             if result[1] == 'x':
                 capture = "capture"
                 rank = Util.get_rank(result[2])
@@ -128,20 +156,28 @@ class Util:
                 file = Util.get_file(result[2])
 
         last_ch = result[len(result) - 1]
-        action = ""
+        action = None
         if last_ch == '+':
             action = "check"
         elif last_ch == '#':
             action = "checkmate"
 
-        if capture != "" and action != "":
-            message = f"{piece} is moved to {rank} line and {file} column and generates {capture} and {action}. "
-        elif capture != "" and action == "":
-            message = f"{piece} is moved to {rank} line and {file} column and generates {capture}. "
-        elif capture == "" and action != "":
-            message = f"{piece} is moved to {rank} line and {file} column and generates {action}. "
+
+        if capture is not None and action is not None:
+            if column_attack is not None:
+                message = f"{piece} is moved from column {column_attack} to {file} line and {rank} column and generates {capture} and {action}."
+            else:
+                message = f"{piece} is moved to {file} line and {rank} column and generates {capture} and {action}. "
+        elif capture is not None and action is None:
+            if column_attack is not None:
+                message = f"{piece} is moved from column {column_attack} to {file} line and {rank} column and generates {capture}. "
+            else:
+                message = f"{piece} is moved to {file} line and {rank} column and generates {capture}. "
+        elif capture is None and action is not None:
+            message = f"{piece} is moved to {file} line and {rank} column and generates {action}. "
         else:
-            message = f"{piece} is moved to {rank} line and {file} column. "
+            message = f"{piece} is moved to {file} line and {rank} column. "
+
         return message
 
     @staticmethod
@@ -151,4 +187,3 @@ class Util:
             return None
         answer = "".join(Util.preprocess_san(result) for result in results)
         return answer
-
