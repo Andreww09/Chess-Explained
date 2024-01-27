@@ -1,5 +1,3 @@
-import time
-
 import customtkinter
 
 from front.chessboard import Square
@@ -8,6 +6,7 @@ import chess
 
 
 class Board(customtkinter.CTkFrame):
+
     def __init__(self, master, stockfish, **kwargs):
         super().__init__(master, **kwargs)
 
@@ -15,107 +14,75 @@ class Board(customtkinter.CTkFrame):
         self.create_squares()
         self.menu = None
         self.stockfish = stockfish
-        self.fen = None
-
-    def load_from_fen(self):
-        self.update_fen()
-        self.stockfish.setup(self.fen)
-        print(self.fen)
-        for square_index in chess.scan_reversed(self.stockfish.board.occupied):
-            piece_color = self.stockfish.board.piece_at(square_index).color
-            piece_type = self.stockfish.board.piece_at(square_index).symbol()
-            print(f"Square Index: {square_index}, Piece Type: {piece_type}, Piece Color: {piece_color}")
-            square = self.squares[63 - square_index]
-            rank = square.rank
-            file = square.file
-            print(rank)
-            print(file)
-            piece = Piece(color=piece_color, piece_type=piece_type, position=(rank, file))
-            square.place_piece(piece)
-        self.print_board()
-
-    def update_fen(self):
-        self.fen = self.menu.fen_text
-
-    def add_menu(self, menu):
-        self.menu = menu
-
-    def set_new_game(self):
-        self.squares = self.initial_board()
-        self.print_board()
-
-    '''def update_board(self, initial_index, final_index):
-        initial_square = self.squares[initial_index]
-        final_square = self.squares[final_index]
-        initial_piece = initial_square.piece
-        final_piece = final_square.piece
-        
-        initial_square.place_piece(final_piece)
-        # print(self.squares[0].piece.get_image())
-        if initial_square.piece is not None:
-            initial_square_image = customtkinter.CTkLabel(master=self, image=initial_square.piece, text="")
-            initial_square_image.grid(row=initial_index // 8, column=initial_index % 8,
-                                      sticky="nsew")
-        
-        final_square.place_piece(initial_piece)
-        # print(self.squares[0].piece.get_image())
-        if final_square.piece is not None:
-            final_square_image = customtkinter.CTkLabel(master=self, image=final_square.piece, text="")
-            final_square_image.grid(row=final_index // 8, column=final_index % 8,
-                                    sticky="nsew")
-        
-        #  era mult mai eficient sa le schimb doar pe cele 2 imagini, dar problema e ca daca am o piesa null, nu
-        #  o pot afisa -> printez toata tabla din nou, se misca rapid oricum
-        self.print_board()
-    '''
-
-    def calculate_index_square(self, rank, file):
-        linear_index = rank * 8 + file
-        return linear_index
-
-    def initial_board(self):
-        pieces_types = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r',
-                        'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p',
-                        'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p',
-                        'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']
-        color = False
-        index = 0
-        for rank in range(0, 2):
-            for file in range(8):
-                index_square = self.calculate_index_square(rank, file)
-                square = self.squares[index_square]
-                piece = Piece(color=color, piece_type=pieces_types[index], position=(rank, file))
-                square.place_piece(piece)
-                index += 1
-
-        color = not color
-        for rank in range(6, 8):
-            for file in range(8):
-                index_square = self.calculate_index_square(rank, file)
-                square = self.squares[index_square]
-                piece = Piece(color=color, piece_type=pieces_types[index], position=(rank, file))
-                square.place_piece(piece)
-                index += 1
-
-        #  self.update_board(10, 60)
-        return self.squares
-
-    def print_board(self):
-        for square in self.squares:
-            if square.piece is not None:
-                piece_image = customtkinter.CTkLabel(master=self, image=square.piece, text="")
-                piece_image.grid(row=square.rank, column=square.file,
-                                 sticky="nsew")
 
     def create_squares(self):
         """
         Create the squares of the chess board.
         """
         for rank in range(8):
+            squares_file = []
             for file in range(8):
                 square_color = "white" if (rank + file) % 2 == 0 else "gray"
-                # file = chr(ord('a') + file)
+
                 square = Square(self, 60, 60, square_color, file, rank)
                 square.grid(row=rank, column=file, sticky="nsew")
 
-                self.squares.append(square)
+                squares_file.append(square)
+            self.squares.append(squares_file)
+
+    def load_from_fen(self, fen):
+        """
+        Load the board from a fen.
+        :param fen:
+        :return:
+        """
+        # Clean the board
+        self.clean_board()
+
+        # Set up the board with the fen
+        self.stockfish.setup(fen)
+
+        for piece, square_rank, square_file in self.stockfish.get_occupied_squares():
+            # Get the piece type and color
+            piece_color = piece.color
+            piece_type = piece.symbol()
+
+            # Get the square
+            square = self.squares[7 - square_rank][square_file]
+
+            # Place the piece on the square
+            piece = Piece(color=piece_color, piece_type=piece_type, position=(square_rank, square_file))
+            square.place_piece(piece)
+        self.print_board()
+
+    def initial_board(self):
+        """
+        Create the initial board.
+
+        """
+        starting_fen = chess.STARTING_FEN
+        self.load_from_fen(starting_fen)
+
+    def add_menu(self, menu):
+        self.menu = menu
+
+    def clean_board(self):
+        """
+        Clean the board.
+        """
+        for piece, square_rank, square_file in self.stockfish.get_occupied_squares():
+            # Get the square
+            square = self.squares[7 - square_rank][square_file]
+
+            # Delete the piece on the square
+            square.place_piece(None)
+            for widget in square.winfo_children():
+                widget.destroy()
+
+    def print_board(self):
+        for squares_file in self.squares:
+            for square in squares_file:
+                if square.piece is not None:
+                    piece_image = customtkinter.CTkLabel(master=square, image=square.piece, text="")
+                    piece_image.grid(row=square.rank, column=square.file,
+                                     sticky="nsew")

@@ -647,3 +647,10 @@ class Stockfish:
             probability = 0
 
         return probability
+
+    def get_occupied_squares(self):
+        for square in chess.SQUARES:
+            if self.board.piece_at(square):
+                yield (self.board.piece_at(square),
+                       chess.square_rank(square),
+                       chess.square_file(square))

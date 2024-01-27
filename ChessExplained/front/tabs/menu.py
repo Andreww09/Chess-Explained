@@ -24,7 +24,7 @@ class Menu(customtkinter.CTkFrame):
 
     def set_new_game(self):
         if self.board is not None:
-            self.board.set_new_game()
+            self.board.initial_board()
         else:
             raise "None Board"
 
@@ -38,7 +38,7 @@ class Menu(customtkinter.CTkFrame):
             invalid_fen = PopupWindow(self.master, "Invalid Fen", "This Fen is invalid, please insert another one!")
         else:
             self.fen_text = fen_text
-            self.board.load_from_fen()
+            self.board.load_from_fen(self.fen_text)
 
     def show_chat_window(self):
         # chat_window = PopupWindow(self.master, "Chat Window", "Start a conversation.")

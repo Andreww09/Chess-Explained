@@ -16,6 +16,4 @@ class Piece(customtkinter.CTkImage):
     def get_image(self):
         icon = ('w' if self.color else 'b') + str.lower(BoardUtils.expand_piece_name(self.piece_type)) + ".png"
 
-        # with Image.open(f"front/assets/pieces_icons/{icon}") as img:
-        #   return img
         return f"front/assets/pieces_icons/{icon}"
