@@ -42,7 +42,7 @@ class Menu(customtkinter.CTkFrame):
             self.chat_button.configure(text="Start chat with Bot")
         else:
             self.dialog.grid()
-            self.chat_button.configure(text="End chat with Bot")
+            self.chat_button.configure(text="  End chat with Bot")
         self.dialog_is_displayed = not self.dialog_is_displayed
 
     def create_buttons(self):
