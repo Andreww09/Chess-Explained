@@ -50,6 +50,10 @@ class Menu(customtkinter.CTkFrame):
             self.chat_button.configure(text="  End chat with Bot")
         self.dialog_is_displayed = not self.dialog_is_displayed
 
+    def get_best_move(self):
+        if not self.dialog_is_displayed:
+            self.show_chat_window()
+
     def create_buttons(self):
         """
         Create the buttons of the menu.
@@ -63,7 +67,7 @@ class Menu(customtkinter.CTkFrame):
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
 
-        best_move_button = customtkinter.CTkButton(self, 50, 30, text=f"Get Best Move")
+        best_move_button = customtkinter.CTkButton(self, 50, 30, text=f"Get Best Move", command=self.get_best_move)
         best_move_button.grid(row=0, column=0, sticky="nsew", pady=10)
 
         new_game_button = customtkinter.CTkButton(self, 50, 30, text=f"New Game", command=self.set_new_game)
