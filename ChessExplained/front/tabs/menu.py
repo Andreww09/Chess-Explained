@@ -3,7 +3,7 @@ from front.popup_windows import PopupWindow
 
 
 class Menu(customtkinter.CTkFrame):
-    def __init__(self, master, **kwargs):
+    def __init__(self, master, dialog, **kwargs):
         super().__init__(master, **kwargs)
         self.board = None
 
@@ -15,6 +15,8 @@ class Menu(customtkinter.CTkFrame):
         self.insert_fen_button = None
         self.insert_fen_text = None
         self.create_buttons()
+        self.dialog = dialog
+        self.dialog_is_displayed = False
 
     def add_board(self, board):
         self.board = board
@@ -34,7 +36,12 @@ class Menu(customtkinter.CTkFrame):
             self.fen_text = fen_text
 
     def show_chat_window(self):
-        chat_window = PopupWindow(self.master, "Chat Window", "Start a conversation.")
+        # chat_window = PopupWindow(self.master, "Chat Window", "Start a conversation.")
+        if self.dialog_is_displayed:
+            self.dialog.grid_remove()
+        else:
+            self.dialog.grid()
+        self.dialog_is_displayed = not self.dialog_is_displayed
 
     def create_buttons(self):
         """

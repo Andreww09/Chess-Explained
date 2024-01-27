@@ -12,7 +12,7 @@ from reportlab.graphics import renderPDF
 from pdf2image import convert_from_path
 
 from front.chessboard import Board
-from front.tabs import Menu
+from front.tabs import Menu, Dialog
 
 
 class App(CTk):
@@ -23,7 +23,7 @@ class App(CTk):
         self.engine_path = engine_path
         self.title("Chess Explained")
         self.geometry("680x680")
-        self.minsize(620, 620)
+        self.minsize(1080, 680)
         self.resizable(True, True)
         self.chatbot = ChatBot("back",
                                preprocessors=['chatterbot.preprocessors.convert_to_ascii',
@@ -41,8 +41,8 @@ class App(CTk):
         # Center the content
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(1, weight=1)
-
-        self.menu = Menu(master=self)
+        self.dialog = Dialog(master=self, width=50, height=680)
+        self.menu = Menu(master=self, dialog=self.dialog)
         self.menu.grid(row=0, column=0,
                        sticky="nsew",
                        padx=10, pady=10)
@@ -56,6 +56,12 @@ class App(CTk):
         self.board.grid(row=1, column=0,
                         sticky="nsew",
                         padx=10, pady=10)
+
+        self.dialog.grid(row=0, column=2,
+                         columnspan=10, rowspan=10,
+                         sticky="nsew",
+                         padx=10, pady=10)
+        self.dialog.grid_remove()
 
         self.board.add_menu(self.menu)
         self.menu.add_board(self.board)
