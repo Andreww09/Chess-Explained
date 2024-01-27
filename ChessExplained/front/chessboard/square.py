@@ -14,7 +14,7 @@ class Square(customtkinter.CTkFrame):
         square_color (str): The color of the square.
     """
 
-    def __init__(self, master, square_color, **kwargs):
+    def __init__(self, master, width, height, square_color, **kwargs):
         """
         Initialize the Square.
 
@@ -23,7 +23,7 @@ class Square(customtkinter.CTkFrame):
             square_color (str): The color of the square.
             **kwargs: Additional keyword arguments.
         """
-        super().__init__(master, **kwargs)
+        super().__init__(master, width=width, height=height, **kwargs)
 
         self.square_color = square_color
         self.configure(fg_color=square_color)
