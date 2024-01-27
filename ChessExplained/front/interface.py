@@ -46,12 +46,7 @@ class App(CTk):
         self.menu.grid(row=0, column=0,
                        sticky="nsew",
                        padx=10, pady=10)
-        self.new_game = False
-        """self.loadButton = customtkinter.CTkButton(master=self, width=50, height=30, text="Load a Fen: ")
-        self.loadButton.grid(row=1, column=0,
-                             sticky="nswe",
-                             padx=10, pady=10)
-"""
+
         self.board = Board(master=self)
         self.board.grid(row=1, column=0,
                         sticky="nsew",
@@ -66,7 +61,6 @@ class App(CTk):
         self.board.add_menu(self.menu)
         self.menu.add_board(self.board)
 
-        print(self.board.new_game)
 
         # self.grid_rowconfigure((0, 1, 2, 3, 4, 5), weight=1)
         # self.grid_columnconfigure(0, weight=1)

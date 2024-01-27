@@ -1,3 +1,5 @@
+import time
+
 import customtkinter
 
 from front.chessboard import Square
@@ -11,16 +13,38 @@ class Board(customtkinter.CTkFrame):
         self.squares = []
         self.create_squares()
         self.menu = None
-        self.new_game = False
 
     def add_menu(self, menu):
         self.menu = menu
 
     def set_new_game(self):
-        print("New Game")
-        self.new_game = True
-        self.initial_board()
+        self.squares = self.initial_board()
+        self.print_board()
 
+    '''def update_board(self, initial_index, final_index):
+        initial_square = self.squares[initial_index]
+        final_square = self.squares[final_index]
+        initial_piece = initial_square.piece
+        final_piece = final_square.piece
+        
+        initial_square.place_piece(final_piece)
+        # print(self.squares[0].piece.get_image())
+        if initial_square.piece is not None:
+            initial_square_image = customtkinter.CTkLabel(master=self, image=initial_square.piece, text="")
+            initial_square_image.grid(row=initial_index // 8, column=initial_index % 8,
+                                      sticky="nsew")
+        
+        final_square.place_piece(initial_piece)
+        # print(self.squares[0].piece.get_image())
+        if final_square.piece is not None:
+            final_square_image = customtkinter.CTkLabel(master=self, image=final_square.piece, text="")
+            final_square_image.grid(row=final_index // 8, column=final_index % 8,
+                                    sticky="nsew")
+        
+        #  era mult mai eficient sa le schimb doar pe cele 2 imagini, dar problema e ca daca am o piesa null, nu
+        #  o pot afisa -> printez toata tabla din nou, se misca rapid oricum
+        self.print_board()
+    '''
     def calculate_index_square(self, rank, file):
         linear_index = rank * 8 + file
         return linear_index
@@ -38,10 +62,6 @@ class Board(customtkinter.CTkFrame):
                 square = self.squares[index_square]
                 piece = Piece(color=color, piece_type=pieces_types[index], position=(rank, file))
                 square.place_piece(piece)
-                # print(self.squares[0].piece.get_image())
-                piece_image = customtkinter.CTkLabel(master=self, image=piece, text="")
-                piece_image.grid(row=rank, column=file,
-                                 sticky="nsew")
                 index += 1
 
         color = not color
@@ -51,11 +71,17 @@ class Board(customtkinter.CTkFrame):
                 square = self.squares[index_square]
                 piece = Piece(color=color, piece_type=pieces_types[index], position=(rank, file))
                 square.place_piece(piece)
-                # print(self.squares[0].piece.get_image())
-                piece_image = customtkinter.CTkLabel(master=self, image=piece, text="")
-                piece_image.grid(row=rank, column=file,
-                                 sticky="nsew")
                 index += 1
+
+        #  self.update_board(10, 60)
+        return self.squares
+
+    def print_board(self):
+        for square in self.squares:
+            if square.piece is not None:
+                piece_image = customtkinter.CTkLabel(master=self, image=square.piece, text="")
+                piece_image.grid(row=square.rank, column=square.file,
+                                 sticky="nsew")
 
     def create_squares(self):
         """

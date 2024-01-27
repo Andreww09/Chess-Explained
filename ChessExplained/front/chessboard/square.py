@@ -55,7 +55,3 @@ class Square(customtkinter.CTkFrame):
             piece (Piece): The piece to be placed on the square.
         """
         self.piece = piece
-        #self.piece.place(x=0, y=0)
-        #self.piece.lift()
-        print(f"{piece.piece_type} at {piece.position}")
-        print(f"{piece.light_image}")
