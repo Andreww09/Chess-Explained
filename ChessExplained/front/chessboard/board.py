@@ -16,7 +16,7 @@ class Board(customtkinter.CTkFrame):
         for row in range(8):
             for col in range(8):
                 square_color = "white" if (row + col) % 2 == 0 else "gray"
-                square = Square(self, 80, 80, square_color)
+                square = Square(self, 70, 70, square_color)
                 square.grid(row=row, column=col, sticky="nsew")
 
                 self.squares.append(square)
