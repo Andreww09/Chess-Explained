@@ -11,6 +11,8 @@ from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPDF
 from pdf2image import convert_from_path
 
+from front.chessboard import Board
+
 
 class App(CTk):
 
@@ -34,37 +36,41 @@ class App(CTk):
                                ]
                                )
 
-        self.grid_rowconfigure((0, 1, 2, 3, 4, 5), weight=1)
-        self.grid_columnconfigure(0, weight=1)
-
-        self.img = CTkImage(light_image=Image.open("front/assets/label.png"),
-                            dark_image=Image.open("front/assets/label.png"),
-                            size=(680, 90))
-        self.label = CTkLabel(master=self, image=self.img, text="")
-        self.label.grid(row=0, column=0,
-                        columnspan=5,
+        self.board = Board(master=self)
+        self.board.grid(row=0, column=0,
                         sticky="nsew")
 
-        self.textBox = CTkTextbox(master=self)
-        self.textBox.grid(row=1, column=0,
-                          rowspan=3, columnspan=5,
-                          sticky="nsew",
-                          padx=10, pady=10)
-        self.textBox.configure(state=DISABLED)
-
-        self.entryBox = CTkTextbox(master=self)
-        self.entryBox.grid(row=4, column=0,
-                           columnspan=4, rowspan=2,
-                           sticky="nsew",
-                           padx=10, pady=10)
-        self.entryBox.focus()
-
-        self.button1 = CTkButton(master=self, text="Send",
-                                 command=lambda: self._on_enter_pressed())
-        self.button1.grid(row=4, column=4, sticky="nsew", padx=10, pady=10)
-
-        self.button2 = CTkButton(master=self, text="Best Move", command=lambda: self.input())
-        self.button2.grid(row=5, column=4, sticky="nsew", padx=10, pady=10)
+        # self.grid_rowconfigure((0, 1, 2, 3, 4, 5), weight=1)
+        # self.grid_columnconfigure(0, weight=1)
+        #
+        # self.img = CTkImage(light_image=Image.open("front/assets/label.png"),
+        #                     dark_image=Image.open("front/assets/label.png"),
+        #                     size=(680, 90))
+        # self.label = CTkLabel(master=self, image=self.img, text="")
+        # self.label.grid(row=0, column=0,
+        #                 columnspan=5,
+        #                 sticky="nsew")
+        #
+        # self.textBox = CTkTextbox(master=self)
+        # self.textBox.grid(row=1, column=0,
+        #                   rowspan=3, columnspan=5,
+        #                   sticky="nsew",
+        #                   padx=10, pady=10)
+        # self.textBox.configure(state=DISABLED)
+        #
+        # self.entryBox = CTkTextbox(master=self)
+        # self.entryBox.grid(row=4, column=0,
+        #                    columnspan=4, rowspan=2,
+        #                    sticky="nsew",
+        #                    padx=10, pady=10)
+        # self.entryBox.focus()
+        #
+        # self.button1 = CTkButton(master=self, text="Send",
+        #                          command=lambda: self._on_enter_pressed())
+        # self.button1.grid(row=4, column=4, sticky="nsew", padx=10, pady=10)
+        #
+        # self.button2 = CTkButton(master=self, text="Best Move", command=lambda: self.input())
+        # self.button2.grid(row=5, column=4, sticky="nsew", padx=10, pady=10)
 
         # Set the theme
         set_appearance_mode("dark")
