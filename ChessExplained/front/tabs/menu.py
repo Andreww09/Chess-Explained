@@ -1,12 +1,40 @@
 import customtkinter
+from front.popup_windows import PopupWindow
 
 
 class Menu(customtkinter.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
+        self.board = None
 
-        self.buttons = []
+        self.fen_text = None
+
+        self.best_move_button = None
+        self.new_game_button = None
+        self.chat_button = None
+        self.insert_fen_button = None
+        self.insert_fen_text = None
         self.create_buttons()
+
+    def add_board(self, board):
+        self.board = board
+
+    def set_new_game(self):
+        if self.board is not None:
+            self.board.set_new_game()
+        else:
+            raise "None Board"
+
+    def load_from_fen(self):
+        fen_text = self.insert_fen_text.get("1.0", "end-1c").strip()
+
+        if not fen_text:
+            empty_fen = PopupWindow(self.master, "Empty Fen", "You cannot insert an empty Fen!")
+        else:
+            self.fen_text = fen_text
+
+    def show_chat_window(self):
+        chat_window = PopupWindow(self.master, "Chat Window", "Start a conversation.")
 
     def create_buttons(self):
         """
@@ -15,11 +43,29 @@ class Menu(customtkinter.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2, weight=1)
+        self.grid_columnconfigure(3, weight=1)
+        self.grid_columnconfigure(4, weight=1)
 
-        button_load = customtkinter.CTkButton(self, 200, 70, text=f"Load from Fen")
-        button_load.grid(row=0, column=0, sticky="nsew", pady=10)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
 
-        button_chat = customtkinter.CTkButton(self, 200, 70, text=f"Start chat with Bot")
-        button_chat.grid(row=0, column=2, sticky="nswe", pady=10)
+        best_move_button = customtkinter.CTkButton(self, 50, 30, text=f"Get Best Move")
+        best_move_button.grid(row=0, column=0, sticky="nsew", pady=10)
 
-        self.buttons += [button_load, button_chat]
+        new_game_button = customtkinter.CTkButton(self, 50, 30, text=f"New Game", command=self.set_new_game)
+        new_game_button.grid(row=0, column=2, sticky="nsew", pady=10)
+
+        chat_button = customtkinter.CTkButton(self, 50, 30, text=f"Start chat with Bot", command=self.show_chat_window)
+        chat_button.grid(row=0, column=4, sticky="nswe", pady=10)
+
+        insert_fen_button = customtkinter.CTkButton(self, 50, 30, text="Insert Fen", command=self.load_from_fen)
+        insert_fen_button.grid(row=1, column=2, sticky="nswe", pady=10)
+
+        insert_fen_text = customtkinter.CTkTextbox(self, 100, 30)
+        insert_fen_text.grid(row=1, column=4, sticky="nswe", pady=10)
+
+        self.best_move_button = best_move_button
+        self.new_game_button = new_game_button
+        self.chat_button = chat_button
+        self.insert_fen_button = insert_fen_button
+        self.insert_fen_text = insert_fen_text

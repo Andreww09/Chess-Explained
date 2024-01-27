@@ -23,7 +23,7 @@ class App(CTk):
         self.engine_path = engine_path
         self.title("Chess Explained")
         self.geometry("680x680")
-        self.minsize(580, 580)
+        self.minsize(620, 620)
         self.resizable(True, True)
         self.chatbot = ChatBot("back",
                                preprocessors=['chatterbot.preprocessors.convert_to_ascii',
@@ -39,17 +39,28 @@ class App(CTk):
                                )
 
         # Center the content
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_columnconfigure(1, weight=1)
 
         self.menu = Menu(master=self)
         self.menu.grid(row=0, column=0,
                        sticky="nsew",
                        padx=10, pady=10)
+        self.new_game = False
+        """self.loadButton = customtkinter.CTkButton(master=self, width=50, height=30, text="Load a Fen: ")
+        self.loadButton.grid(row=1, column=0,
+                             sticky="nswe",
+                             padx=10, pady=10)
+"""
         self.board = Board(master=self)
         self.board.grid(row=1, column=0,
                         sticky="nsew",
                         padx=10, pady=10)
+
+        self.board.add_menu(self.menu)
+        self.menu.add_board(self.board)
+
+        print(self.board.new_game)
 
         # self.grid_rowconfigure((0, 1, 2, 3, 4, 5), weight=1)
         # self.grid_columnconfigure(0, weight=1)
@@ -88,6 +99,9 @@ class App(CTk):
         customtkinter.set_default_color_theme("dark-blue")
 
         self.mainloop()
+
+    def set_new_game(self):
+        self.new_game = True
 
     def _on_enter_pressed(self):
         msg = self.entryBox.get("1.0", END)

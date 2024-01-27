@@ -15,7 +15,7 @@ class Square(customtkinter.CTkFrame):
         square_color (str): The color of the square.
     """
 
-    def __init__(self, master, width, height, square_color, **kwargs):
+    def __init__(self, master, width, height, square_color, file, rank, **kwargs):
         """
         Initialize the Square.
 
@@ -30,7 +30,8 @@ class Square(customtkinter.CTkFrame):
         self.configure(fg_color=square_color)
 
         self.piece = None
-
+        self.rank = rank
+        self.file = file
         # self.bind("<Enter>", self.on_enter)
         # self.bind("<Leave>", self.on_leave)
 
@@ -54,5 +55,7 @@ class Square(customtkinter.CTkFrame):
             piece (Piece): The piece to be placed on the square.
         """
         self.piece = piece
-        self.piece.place(x=0, y=0)
-        self.piece.lift()
+        #self.piece.place(x=0, y=0)
+        #self.piece.lift()
+        print(f"{piece.piece_type} at {piece.position}")
+        print(f"{piece.light_image}")
