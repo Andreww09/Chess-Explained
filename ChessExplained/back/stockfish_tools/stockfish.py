@@ -654,3 +654,6 @@ class Stockfish:
                 yield (self.board.piece_at(square),
                        chess.square_rank(square),
                        chess.square_file(square))
+
+    def get_fen(self):
+        return self.board.fen()

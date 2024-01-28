@@ -1,5 +1,5 @@
 import customtkinter
-from chatterbot import ChatBot
+# from chatterbot import ChatBot
 from customtkinter import *
 
 from back.utils import Util
@@ -8,18 +8,18 @@ from back.utils import Util
 class DialogContainer(customtkinter.CTkFrame):
     def __init__(self, master, width, height, **kwargs):
         super().__init__(master, width=width, height=height, **kwargs)
-        self.chatbot = ChatBot("back",
-                               preprocessors=['chatterbot.preprocessors.convert_to_ascii',
-                                              'chatterbot.preprocessors.unescape_html',
-                                              'chatterbot.preprocessors.clean_whitespace'],
-                               logic_adapters=[
-                                   {
-                                       'import_path': 'chatterbot.logic.BestMatch',
-                                       'default_response': 'Sorry, I am unable to process your request.',
-                                       'maximum_similarity_threshold': 0.90
-                                   }
-                               ]
-                               )
+        # self.chatbot = ChatBot("back",
+        #                        preprocessors=['chatterbot.preprocessors.convert_to_ascii',
+        #                                       'chatterbot.preprocessors.unescape_html',
+        #                                       'chatterbot.preprocessors.clean_whitespace'],
+        #                        logic_adapters=[
+        #                            {
+        #                                'import_path': 'chatterbot.logic.BestMatch',
+        #                                'default_response': 'Sorry, I am unable to process your request.',
+        #                                'maximum_similarity_threshold': 0.90
+        #                            }
+        #                        ]
+        #                        )
         self.responses = ResponsesContainer(self, **kwargs)
         self.responses.grid(row=0, column=0,
                             sticky="nsew",
