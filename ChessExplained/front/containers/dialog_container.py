@@ -1,5 +1,5 @@
 import customtkinter
-# from chatterbot import ChatBot
+from chatterbot import ChatBot
 from customtkinter import *
 
 from back.utils import Util
@@ -8,20 +8,21 @@ from back.utils import Util
 class DialogContainer(customtkinter.CTkFrame):
     def __init__(self, master, width, height, **kwargs):
         super().__init__(master, width=width, height=height, **kwargs)
-        # self.chatbot = ChatBot("back",
-        #                        preprocessors=['chatterbot.preprocessors.convert_to_ascii',
-        #                                       'chatterbot.preprocessors.unescape_html',
-        #                                       'chatterbot.preprocessors.clean_whitespace'],
-        #                        logic_adapters=[
-        #                            {
-        #                                'import_path': 'chatterbot.logic.BestMatch',
-        #                                'default_response': 'Sorry, I am unable to process your request.',
-        #                                'maximum_similarity_threshold': 0.90
-        #                            }
-        #                        ]
-        #                        )
+        self.chatbot = ChatBot("back",
+                               preprocessors=['chatterbot.preprocessors.convert_to_ascii',
+                                              'chatterbot.preprocessors.unescape_html',
+                                              'chatterbot.preprocessors.clean_whitespace'],
+                               logic_adapters=[
+                                   {
+                                       'import_path': 'chatterbot.logic.BestMatch',
+                                       'default_response': 'Sorry, I am unable to process your request.',
+                                       'maximum_similarity_threshold': 0.90
+                                   }
+                               ]
+                               )
         self.responses = ResponsesContainer(self, **kwargs)
         self.responses.grid(row=0, column=0,
+                            columnspan=2,
                             sticky="nsew",
                             padx=10, pady=10)
 
@@ -79,29 +80,21 @@ class ResponsesContainer(customtkinter.CTkScrollableFrame):
         self.create_conversation(len(self.messages) - 1, message)
 
     def create_conversation(self, index, message):
-        response = customtkinter.StringVar(value=message)
-        self.textBox.append(CTkEntry(master=self,
-                                     textvariable=response,
-                                     fg_color=self.textbox_bg[self.turn[index]],
-                                     text_color=self.text_color[self.turn[index]],
-                                     state="readonly"))
-        self.textBox[index].pack(anchor=("w" if self.turn[index] == 0 else "e"), padx=10, pady=10)
-        self.textBox[index].configure(state=DISABLED)
+        # maximum number of columns, will be used to float the user's input to the right
+        max_column = 350 // 2 + 1
+        font_size = 15
+        message_width = len(message) * font_size
+        message_height = (message_width // 280 + 1) * 12
+        message_width = min(280, message_width)
+        columnspan = message_width // 2 + 1
+        # either 0 or the position of the user's input in columns
+        column = self.turn[index] * (max_column - columnspan)
 
-        # # maximum number of columns, will be used to float the user's input to the right
-        # max_column = 350 // 2 + 1
-        # font_size = 15
-        # message_width = len(message) * font_size
-        # message_height = (message_width // 280 + 1) * 12
-        # message_width = min(280, message_width)
-        # columnspan = message_width // 2 + 1
-        # # either 0 or the position of the user's input in columns
-        # column = self.turn[index] * (max_column - columnspan)
-        #
-        # self.textBox.append(CTkTextbox(master=self,
-        #                                fg_color=self.textbox_bg[self.turn[index]],
-        #                                text_color=self.text_color[self.turn[index]]))
-        #
-        # self.textBox[index].insert("1.0", message)
-        # self.textBox[index].grid(row=index, column=column, columnspan=columnspan, sticky="nsew", padx=10, pady=10)
-        # self.textBox[index].configure(state=DISABLED)
+        self.textBox.append(CTkTextbox(master=self,
+                                       height=message_height, width=message_width,
+                                       fg_color=self.textbox_bg[self.turn[index]],
+                                       text_color=self.text_color[self.turn[index]]))
+
+        self.textBox[index].insert("1.0", message)
+        self.textBox[index].grid(row=index, column=column, columnspan=columnspan, sticky="nsew", padx=10, pady=10)
+        self.textBox[index].configure(state=DISABLED)
