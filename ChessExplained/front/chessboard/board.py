@@ -8,7 +8,10 @@ import chess
 class Board(customtkinter.CTkFrame):
 
     def __init__(self, master, stockfish, **kwargs):
+
         super().__init__(master, **kwargs)
+        # self.grid_columnconfigure((0, 1, 2, 3, 4, 5, 6, 7), weight=1)
+        # self.grid_rowconfigure((0, 1, 2, 3, 4, 5, 6, 7), weight=1)
 
         self.squares = []
         self.create_squares()

@@ -3,8 +3,8 @@ from front.popup_windows import PopupWindow
 from back.utils import BoardUtils
 
 
-class Menu(customtkinter.CTkFrame):
-    def __init__(self, master, dialog, **kwargs):
+class MenuContainer(customtkinter.CTkFrame):
+    def __init__(self, master, dialog_event, **kwargs):
         super().__init__(master, **kwargs)
         self.board = None
 
@@ -16,7 +16,7 @@ class Menu(customtkinter.CTkFrame):
         self.insert_fen_button = None
         self.insert_fen_text = None
         self.create_buttons()
-        self.dialog = dialog
+        self.dialog_event = dialog_event
         self.dialog_is_displayed = False
 
     def add_board(self, board):
@@ -41,13 +41,14 @@ class Menu(customtkinter.CTkFrame):
             self.board.load_from_fen(self.fen_text)
 
     def show_chat_window(self):
-        # chat_window = PopupWindow(self.master, "Chat Window", "Start a conversation.")
         if self.dialog_is_displayed:
-            self.dialog.grid_remove()
+            self.dialog_event("hide")
             self.chat_button.configure(text="Start chat with Bot")
         else:
-            self.dialog.grid()
-            self.chat_button.configure(text="  End chat with Bot")
+            self.dialog_event("show")
+            self.chat_button.configure(text="End chat with Bot")
+
+        # Set the dialog_is_displayed flag
         self.dialog_is_displayed = not self.dialog_is_displayed
 
     def get_best_move(self):

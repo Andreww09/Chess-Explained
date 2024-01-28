@@ -124,7 +124,6 @@ class Util:
 
     @staticmethod
     def preprocess_san(result):
-
         if result == "O-O-O":
             return "O-O-O represents QueenSide Castling"
         if result == "O-O":
@@ -162,15 +161,17 @@ class Util:
         elif last_ch == '#':
             action = "checkmate"
 
-
         if capture is not None and action is not None:
             if column_attack is not None:
-                message = f"{piece} is moved from column {column_attack} to {file} line and {rank} column and generates {capture} and {action}."
+                message = (f"{piece} is moved from column {column_attack} to {file} "
+                           f"line and {rank} column and generates {capture} and {action}.")
             else:
-                message = f"{piece} is moved to {file} line and {rank} column and generates {capture} and {action}. "
+                message = (f"{piece} is moved to {file} line and {rank} column "
+                           f"and generates {capture} and {action}. ")
         elif capture is not None and action is None:
             if column_attack is not None:
-                message = f"{piece} is moved from column {column_attack} to {file} line and {rank} column and generates {capture}. "
+                message = (f"{piece} is moved from column {column_attack} to {file} line "
+                           f"and {rank} column and generates {capture}. ")
             else:
                 message = f"{piece} is moved to {file} line and {rank} column and generates {capture}. "
         elif capture is None and action is not None:
