@@ -42,6 +42,9 @@ class App(CTk):
         # self.board.add_menu(self.menu)
         # self.menu.add_board(self.board)
 
+        self.board_container.board.add_menu(self.menu)
+        self.menu.add_board(self.board_container.board)
+
         # Set the theme
         set_appearance_mode("dark")
         customtkinter.set_default_color_theme("dark-blue")
