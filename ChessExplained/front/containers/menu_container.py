@@ -56,7 +56,10 @@ class MenuContainer(customtkinter.CTkFrame):
     def get_best_move(self):
         if not self.dialog_is_displayed:
             self.show_chat_window()
-        _, explain = self.board.get_best_move(self.fen_text)
+        print("before")
+        print(self.board.fen)
+        _, explain = self.board.get_best_move(self.board.fen)
+        print(explain)
         self.add_dialog("What's the best move?", 1)
         self.add_dialog(explain)
 

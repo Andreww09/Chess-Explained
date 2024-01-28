@@ -103,7 +103,7 @@ class StockfishExplainer:
 
         print("---------------------------------------------------")
         advantage_color, probability = self._calculate_winning_prob()
-
+        print("WAt")
         # check checkmate, forced checkmate
         if techniques['checkmate']['enable'] or techniques['forced_checkmate']['enable']:
             probability = 1
@@ -116,19 +116,23 @@ class StockfishExplainer:
         print("Player that has advantage: " + str(advantage_color))
         print("Winning probability: " + str(probability * 100) + "%.")
 
+        print("HEEEEEEERE2")
         explainer = ExplanationBuilder(techniques)
         explanation += explainer.build_explanation()
 
         explanation += f" The current player has a winning probability of {probability * 100}%"
         explanation += "The player that has advantage is " + advantage_color + ". "
+        print("HEEEEEEERE")
 
         if not any(techniques.values()):
             explanation += "This move improves the position of the current player."
 
+        print("HEEEEEEERE")
         # OpenAI
         openai = OpenAI()
         explanation = openai.reword(explanation)
 
+        print("EXPLANATION: ", explanation)
         return self.stockfish.board, explanation
 
     def _calculate_winning_prob(self):

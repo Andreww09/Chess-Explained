@@ -20,6 +20,7 @@ class Board(customtkinter.CTkFrame):
         self.stockfish = stockfish
         self.selected_piece = None
         self.legal_moves = []
+        self.fen = None
 
     def create_squares(self):
         """
@@ -41,6 +42,7 @@ class Board(customtkinter.CTkFrame):
         :param fen:
         :return:
         """
+        self.fen = fen
         # Clean the board
         self.clean_board()
 
