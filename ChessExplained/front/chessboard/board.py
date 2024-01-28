@@ -95,7 +95,7 @@ class Board(customtkinter.CTkFrame):
                                      sticky="nsew")
                     piece_image.bind("<Button-1>", lambda event, f=square.file, r=square.rank: self.on_board_click(event, f, r))
 
-    def on_board_click(self, event, file, rank):
+    def on_board_click(self, _, file, rank):
         rank = 7 - rank
         position = chess.square_name(chess.square(file, rank))
         print(f"Clicked position: {position}")
