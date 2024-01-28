@@ -1,5 +1,6 @@
 import customtkinter
 
+from back.stockfish_tools import StockfishExplainer
 from front.chessboard import Square
 from front.chessboard import Piece
 import chess
@@ -89,3 +90,14 @@ class Board(customtkinter.CTkFrame):
                     piece_image = customtkinter.CTkLabel(master=square, image=square.piece, text="")
                     piece_image.grid(row=square.rank, column=square.file,
                                      sticky="nsew")
+
+    def get_best_move(self, fen):
+        explainer = StockfishExplainer(self.stockfish)
+        if fen is None:
+            starting_fen = chess.STARTING_FEN
+            self.stockfish.setup(starting_fen)
+        else:
+            self.stockfish.setup(fen)
+        board, explain = explainer.explain()
+        # print(explain)
+        return board, explain

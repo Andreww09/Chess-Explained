@@ -21,7 +21,7 @@ class App(CTk):
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure((0, 1, 2), weight=1)
 
-        self.menu = MenuContainer(master=self, dialog_event=self.dialog_event)
+        self.menu = MenuContainer(master=self, dialog_event=self.dialog_event, add_dialog=self.add_dialog)
         self.menu.grid(row=0, column=1,
                        sticky="nsew",
                        padx=10, pady=10)
@@ -42,6 +42,9 @@ class App(CTk):
         # self.board.add_menu(self.menu)
         # self.menu.add_board(self.board)
 
+        self.board_container.board.add_menu(self.menu)
+        self.menu.add_board(self.board_container.board)
+
         # Set the theme
         set_appearance_mode("dark")
         customtkinter.set_default_color_theme("dark-blue")
@@ -58,3 +61,6 @@ class App(CTk):
             self.dialog.grid_remove()
         else:
             raise ValueError(f"Unknown event {event}")
+
+    def add_dialog(self, text,turn=0):
+        self.dialog.add_text(text,turn)

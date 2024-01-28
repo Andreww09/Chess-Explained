@@ -32,10 +32,10 @@ class DialogContainer(customtkinter.CTkFrame):
                            padx=10, pady=10)
 
         # Enter key sends the message
-        self.entryBox.bind("<Return>", self.add_text)
+        self.entryBox.bind("<Return>", self.add_question_answer)
         self.entryBox.focus()
 
-    def add_text(self, _):
+    def add_question_answer(self, _):
         text = self.entryBox.get("1.0", "end-1c")
         # Add the texts to the dialog, 0 is for the bot, 1 for the user
         self.responses.add_text(text, 1)
@@ -47,6 +47,10 @@ class DialogContainer(customtkinter.CTkFrame):
         self.responses.update()
 
         return "break"
+
+    def add_text(self, text, turn=0):
+        self.responses.add_text(text, turn)
+        self.responses.update()
 
     def get_response(self, msg):
         response = Util.process_question(msg)

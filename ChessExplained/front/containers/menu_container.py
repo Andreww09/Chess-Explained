@@ -1,10 +1,11 @@
+import chess
 import customtkinter
 from front.popup_windows import PopupWindow
 from back.utils import BoardUtils
 
 
 class MenuContainer(customtkinter.CTkFrame):
-    def __init__(self, master, dialog_event, **kwargs):
+    def __init__(self, master, dialog_event, add_dialog, **kwargs):
         super().__init__(master, **kwargs)
         self.board = None
 
@@ -17,6 +18,7 @@ class MenuContainer(customtkinter.CTkFrame):
         self.insert_fen_text = None
         self.create_buttons()
         self.dialog_event = dialog_event
+        self.add_dialog = add_dialog
         self.dialog_is_displayed = False
 
     def add_board(self, board):
@@ -54,6 +56,9 @@ class MenuContainer(customtkinter.CTkFrame):
     def get_best_move(self):
         if not self.dialog_is_displayed:
             self.show_chat_window()
+        _, explain = self.board.get_best_move(self.fen_text)
+        self.add_dialog("What's the best move?", 1)
+        self.add_dialog(explain)
 
     def create_buttons(self):
         """
