@@ -893,6 +893,7 @@
     "Player behavior expectations in chess?" : "Avoid disturbance, irritation.",
 
     "How does the king move?": "The king moves exactly one square horizontally, vertically, or diagonally.",
+    "how does a knight move?": "A knight moves to one of the nearest squares not on the same rank, file, or diagonal. It is not blocked by other pieces; it jumps to the new location.",
     "What is the standard movement for the king?": "The king moves exactly one square horizontally, vertically, or diagonally.",
     "How does the king typically move across the chessboard?": "The king moves exactly one square horizontally, vertically, or diagonally.",
     "In what manner can the king move on the chessboard?": "The king moves exactly one square horizontally, vertically, or diagonally.",

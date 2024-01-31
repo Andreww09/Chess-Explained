@@ -81,14 +81,17 @@ class ResponsesContainer(customtkinter.CTkScrollableFrame):
 
     def create_conversation(self, index, message):
         # maximum number of columns, will be used to float the user's input to the right
-        max_column = 350 // 2 + 1
-        font_size = 15
-        message_width = len(message) * font_size
-        message_height = (message_width // 280 + 1) * 12
+        max_column = 280 // 2 + 1
+        font_size = 8
+        offset=20
+        message_width = len(message) * font_size + offset
+        message_height = (message_width // 280 + 1) * 25
         message_width = min(280, message_width)
         columnspan = message_width // 2 + 1
+
         # either 0 or the position of the user's input in columns
         column = self.turn[index] * (max_column - columnspan)
+        print(column,columnspan)
 
         self.textBox.append(CTkTextbox(master=self,
                                        height=message_height, width=message_width,
@@ -96,5 +99,7 @@ class ResponsesContainer(customtkinter.CTkScrollableFrame):
                                        text_color=self.text_color[self.turn[index]]))
 
         self.textBox[index].insert("1.0", message)
-        self.textBox[index].grid(row=index, column=column, columnspan=columnspan, sticky="nsew", padx=10, pady=10)
+        # self.textBox[index].grid(row=index, column=column, columnspan=columnspan, sticky="nsew", padx=10, pady=10)
+        self.textBox[index].grid(row=index, column=column, columnspan=max_column, sticky="nsew",
+                                 padx=(10+(self.turn[index])*20, 10+(1-self.turn[index])*20), pady=10)
         self.textBox[index].configure(state=DISABLED)
